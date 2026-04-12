@@ -1,0 +1,53 @@
+const express = require('express')
+const cors = require('cors')
+const helmet = require('helmet')
+const { taskRouter } = require('./modules/tasks/task.routes')
+const { subjectRouter } = require('./modules/subjects/subject.routes')
+const { sessionRouter } = require('./modules/sessions/session.routes')
+const { analyticsRouter } = require('./modules/analytics/analytics.routes')
+const { snapshotRouter } = require('./modules/snapshot/snapshot.routes')
+const { authRouter } = require('./modules/auth/auth.routes')
+const { router: behaviorRouter } = require('./modules/behavior/behavior.routes')
+const { aiRouter } = require('./modules/ai/ai.routes')
+const { requireAuth } = require('./shared/authMiddleware')
+const { errorMiddleware } = require('./shared/errorMiddleware')
+const { authLimiter, aiLimiter } = require('./shared/rateLimiters')
+
+const app = express()
+
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+app.use(helmet())
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+
+      return callback(new Error('CORS policy violation'))
+    },
+    credentials: true,
+  }),
+)
+app.use(express.json({ limit: '1mb' }))
+
+app.get('/health', (req, res) => {
+  res.json({ ok: true })
+})
+
+app.use('/api/auth', authLimiter, authRouter)
+app.use('/api/tasks', requireAuth, taskRouter)
+app.use('/api/subjects', requireAuth, subjectRouter)
+app.use('/api/sessions', requireAuth, sessionRouter)
+app.use('/api/analytics', requireAuth, analyticsRouter)
+app.use('/api/snapshot', requireAuth, snapshotRouter)
+app.use('/api/behavior', requireAuth, behaviorRouter)
+app.use('/api/ai', requireAuth, aiLimiter, aiRouter)
+
+app.use(errorMiddleware)
+
+module.exports = { app }
