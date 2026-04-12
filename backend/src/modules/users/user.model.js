@@ -111,31 +111,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    emailVerified: {
-      type: Boolean,
-      default: undefined,
-      index: true,
-    },
-    emailVerificationToken: {
-      type: String,
-      default: null,
-      select: false,
-    },
-    emailVerificationExpiresAt: {
-      type: Date,
-      default: null,
-      select: false,
-    },
-    passwordResetToken: {
-      type: String,
-      default: null,
-      select: false,
-    },
-    passwordResetExpiresAt: {
-      type: Date,
-      default: null,
-      select: false,
-    },
     profile: {
       type: userProfileSchema,
       default: () => ({}),

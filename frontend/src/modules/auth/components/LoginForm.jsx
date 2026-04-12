@@ -19,7 +19,7 @@ const VALIDATION_RULES = {
   },
 }
 
-export default function LoginForm({ onSubmit, loading, onForgotPassword }) {
+export default function LoginForm({ onSubmit, loading }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -134,8 +134,8 @@ export default function LoginForm({ onSubmit, loading, onForgotPassword }) {
         }
       />
 
-      {/* Remember Me & Forgot Password */}
-      <div className="flex items-center justify-between pt-2">
+      {/* Remember Me */}
+      <div className="flex items-center justify-start pt-2">
         <label className="flex items-center gap-2 text-sm cursor-pointer hover:text-stone-700 transition">
           <input
             type="checkbox"
@@ -147,17 +147,6 @@ export default function LoginForm({ onSubmit, loading, onForgotPassword }) {
           />
           <span className="text-stone-600">Remember me</span>
         </label>
-        <button
-          type="button"
-          className="text-sm font-semibold hover:underline transition"
-          style={{ color: '#6352c8' }}
-          onClick={(e) => {
-            e.preventDefault()
-            if (onForgotPassword) onForgotPassword()
-          }}
-        >
-          Forgot?
-        </button>
       </div>
 
       {/* Submit Button */}

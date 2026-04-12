@@ -1,6 +1,5 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const crypto = require('crypto')
 const User = require('../users/user.model')
 const { asyncHandler } = require('../../shared/asyncHandler')
 const { requireAuth } = require('../../shared/authMiddleware')
@@ -32,7 +31,6 @@ function toUserPayload(userDoc) {
     id: user._id,
     name: user.name,
     email: user.email,
-    emailVerified: user.emailVerified !== false,
     onboardingCompleted: Boolean(user.onboardingCompleted),
     profile: {
       id: user._id,
@@ -55,19 +53,10 @@ function toUserPayload(userDoc) {
   }
 }
 
-// Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '7d',
   })
-}
-
-function generateEmailVerificationToken() {
-  return crypto.randomBytes(24).toString('hex')
-}
-
-function hashToken(value) {
-  return crypto.createHash('sha256').update(value).digest('hex')
 }
 
 // POST /api/auth/signup
@@ -102,9 +91,6 @@ router.post(
       name,
       email,
       password,
-      emailVerified: false,
-      emailVerificationToken: generateEmailVerificationToken(),
-      emailVerificationExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       onboardingCompleted: false,
       profile: {
         createdAt: new Date(),
@@ -113,69 +99,12 @@ router.post(
     })
     await user.save()
 
+    const token = generateToken(user._id)
+
     res.status(201).json({
-      message: 'Account created. Please verify your email before logging in.',
-      requiresEmailVerification: true,
+      message: 'Account created successfully',
+      token,
       user: toUserPayload(user),
-    })
-  })
-)
-
-router.post(
-  '/verify-email',
-  asyncHandler(async (req, res) => {
-    const { token } = req.body || {}
-
-    if (!token) {
-      return res.status(400).json({ message: 'Verification token is required' })
-    }
-
-    const user = await User.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpiresAt: { $gt: new Date() },
-    }).select('+emailVerificationToken +emailVerificationExpiresAt')
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token' })
-    }
-
-    user.emailVerified = true
-    user.emailVerificationToken = null
-    user.emailVerificationExpiresAt = null
-    await user.save()
-
-    res.status(200).json({
-      message: 'Email verified successfully. You can now log in.',
-    })
-  })
-)
-
-router.post(
-  '/resend-verification',
-  asyncHandler(async (req, res) => {
-    const { email } = req.body || {}
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' })
-    }
-
-    const user = await User.findOne({ email }).select('+emailVerificationToken +emailVerificationExpiresAt')
-
-    if (!user) {
-      // Avoid user enumeration.
-      return res.status(200).json({ message: 'If the email exists, a verification link has been refreshed.' })
-    }
-
-    if (user.emailVerified !== false) {
-      return res.status(200).json({ message: 'Email is already verified.' })
-    }
-
-    user.emailVerificationToken = generateEmailVerificationToken()
-    user.emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    await user.save()
-
-    res.status(200).json({
-      message: 'Verification link refreshed.',
     })
   })
 )
@@ -209,13 +138,6 @@ router.post(
       })
     }
 
-    if (user.emailVerified === false) {
-      return res.status(403).json({
-        message: 'Email not verified. Please verify your email before logging in.',
-        verificationRequired: true,
-      })
-    }
-
     // Generate token
     const token = generateToken(user._id)
 
@@ -234,65 +156,6 @@ router.post('/logout', requireAuth, (req, res) => {
     message: 'Logged out successfully',
   })
 })
-
-router.post(
-  '/forgot-password',
-  asyncHandler(async (req, res) => {
-    const { email } = req.body || {}
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' })
-    }
-
-    const user = await User.findOne({ email }).select('+passwordResetToken +passwordResetExpiresAt')
-
-    if (!user) {
-      return res.status(200).json({
-        message: 'If the email exists, a reset link has been generated.',
-      })
-    }
-
-    const rawToken = crypto.randomBytes(24).toString('hex')
-    user.passwordResetToken = hashToken(rawToken)
-    user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000)
-    await user.save()
-
-    return res.status(200).json({
-      message: 'Password reset link generated.',
-    })
-  }),
-)
-
-router.post(
-  '/reset-password',
-  asyncHandler(async (req, res) => {
-    const { token, password } = req.body || {}
-
-    if (!token || !password) {
-      return res.status(400).json({ message: 'Token and new password are required' })
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long' })
-    }
-
-    const user = await User.findOne({
-      passwordResetToken: hashToken(token),
-      passwordResetExpiresAt: { $gt: new Date() },
-    }).select('+password +passwordResetToken +passwordResetExpiresAt')
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' })
-    }
-
-    user.password = password
-    user.passwordResetToken = null
-    user.passwordResetExpiresAt = null
-    await user.save()
-
-    return res.status(200).json({ message: 'Password reset successful. Please login with your new password.' })
-  }),
-)
 
 // GET /api/auth/user (protected - needs token verification)
 router.get(

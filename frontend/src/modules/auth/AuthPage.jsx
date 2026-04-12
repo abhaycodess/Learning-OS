@@ -24,17 +24,7 @@ export default function AuthPage() {
 
   const handleSignupSubmit = async (formData) => {
     try {
-      const data = await signup(formData)
-
-      if (data?.requiresEmailVerification) {
-        success('Account created', 'Verify your email to continue.')
-        const query = new URLSearchParams({
-          email: formData.email,
-          token: data.verificationToken || '',
-        }).toString()
-        setTimeout(() => navigate(`/verify-email?${query}`), 900)
-        return
-      }
+      await signup(formData)
 
       success('Account created', 'Let\'s set up your learning profile...')
       setTimeout(() => navigate('/onboarding'), 900)
@@ -101,11 +91,7 @@ export default function AuthPage() {
 
           {/* Form Content */}
           {activeTab === 'login' ? (
-            <LoginForm
-              onSubmit={handleLoginSubmit}
-              loading={loading}
-              onForgotPassword={() => navigate('/forgot-password')}
-            />
+            <LoginForm onSubmit={handleLoginSubmit} loading={loading} />
           ) : (
             <SignupForm onSubmit={handleSignupSubmit} loading={loading} />
           )}

@@ -11,9 +11,6 @@ const AnalyticsPage = lazy(() => import('./modules/analytics/AnalyticsPage.jsx')
 const FocusPage = lazy(() => import('./modules/focus/FocusPage.jsx'))
 const StudyCoachPage = lazy(() => import('./modules/ai/StudyCoachPage.jsx'))
 const AuthPage = lazy(() => import('./modules/auth/AuthPage.jsx'))
-const VerifyEmailPage = lazy(() => import('./modules/auth/VerifyEmailPage.jsx'))
-const ForgotPasswordPage = lazy(() => import('./modules/auth/ForgotPasswordPage.jsx'))
-const ResetPasswordPage = lazy(() => import('./modules/auth/ResetPasswordPage.jsx'))
 const OnboardingPage = lazy(() => import('./modules/onboarding/OnboardingPage.jsx'))
 const ProfilePage = lazy(() => import('./modules/profile/ProfilePage.jsx'))
 const LandingPage = lazy(() => import('./modules/landing/LandingPage.jsx'))
@@ -48,9 +45,6 @@ function App() {
         <Route path="/auth" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <AuthPage />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <Navigate to="/auth" replace />} />
         <Route path="/signup" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <Navigate to="/auth" replace />} />
-        <Route path="/verify-email" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <VerifyEmailPage />} />
-        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <ForgotPasswordPage />} />
-        <Route path="/reset-password" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <ResetPasswordPage />} />
 
         <Route
           path="/onboarding"
