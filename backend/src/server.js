@@ -31,7 +31,7 @@ async function bootstrap() {
     await connectDatabase()
 
     // Start HTTP server
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`Learning OS API listening on port ${PORT}`)
     })
 
