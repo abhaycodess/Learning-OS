@@ -27,6 +27,64 @@ const initialState = {
   },
 }
 
+function normalizeSubtopics(subtopics = []) {
+  if (!Array.isArray(subtopics)) return []
+
+  return subtopics
+    .map((entry) => {
+      if (typeof entry === 'string') {
+        const trimmed = entry.trim()
+        if (!trimmed) return null
+        return {
+          id: `legacy-${trimmed.toLowerCase().replace(/\s+/g, '-')}`,
+          name: trimmed,
+          notes: '',
+        }
+      }
+
+      if (!entry || typeof entry !== 'object') return null
+      const name = String(entry.name || '').trim()
+      if (!name) return null
+
+      return {
+        id: String(entry.id || crypto.randomUUID()),
+        name,
+        notes: typeof entry.notes === 'string' ? entry.notes : '',
+      }
+    })
+    .filter(Boolean)
+}
+
+function normalizeTopics(topics = []) {
+  if (!Array.isArray(topics)) return []
+
+  return topics
+    .map((topic) => {
+      if (!topic || typeof topic !== 'object') return null
+      const name = String(topic.name || '').trim()
+      if (!name) return null
+
+      return {
+        ...topic,
+        id: String(topic.id || crypto.randomUUID()),
+        name,
+        subtopics: normalizeSubtopics(topic.subtopics || []),
+      }
+    })
+    .filter(Boolean)
+}
+
+function normalizeSubject(subject = {}) {
+  return {
+    ...subject,
+    id: String(subject.id || crypto.randomUUID()),
+    name: String(subject.name || '').trim(),
+    emoji: typeof subject.emoji === 'string' && subject.emoji.trim() ? subject.emoji : '📘',
+    coverImage: typeof subject.coverImage === 'string' ? subject.coverImage : '',
+    topics: normalizeTopics(subject.topics || []),
+  }
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'snapshotLoaded':
@@ -175,6 +233,30 @@ function reducer(state, action) {
         ...state,
         subjects: [...state.subjects, ...action.payload],
       }
+    case 'updateSubject':
+      return {
+        ...state,
+        subjects: state.subjects.map((subject) =>
+          subject.id === action.payload.id
+            ? {
+                ...subject,
+                ...action.payload,
+              }
+            : subject,
+        ),
+      }
+    case 'removeSubject':
+      return {
+        ...state,
+        subjects: state.subjects.filter((subject) => subject.id !== action.payload),
+        tasks: state.tasks.filter((task) => task.subjectId !== action.payload),
+      }
+    case 'restoreSubjectWithTasks':
+      return {
+        ...state,
+        subjects: [...state.subjects, action.payload.subject],
+        tasks: [...state.tasks, ...action.payload.tasks],
+      }
     case 'behaviorDataLoaded':
       return {
         ...state,
@@ -200,7 +282,9 @@ function reducer(state, action) {
 function toSnapshotPayload(payload) {
   return {
     tasks: payload.tasks || emptyLearningData.tasks,
-    subjects: payload.subjects || emptyLearningData.subjects,
+    subjects: Array.isArray(payload.subjects)
+      ? payload.subjects.map((subject) => normalizeSubject(subject)).filter((subject) => subject.name)
+      : emptyLearningData.subjects,
     sessions: payload.sessions || [],
   }
 }
@@ -290,15 +374,7 @@ export function LearningProvider({ children }) {
         }
       },
       addSubject: async (subject) => {
-        const payload = {
-          ...subject,
-          id: subject.id || crypto.randomUUID(),
-          topics: (subject.topics || []).map((topic) => ({
-            ...topic,
-            id: topic.id || crypto.randomUUID(),
-            subtopics: topic.subtopics || [],
-          })),
-        }
+        const payload = normalizeSubject(subject)
 
         dispatch({ type: 'addSubject', payload })
 
@@ -311,19 +387,52 @@ export function LearningProvider({ children }) {
       addSubjects: async (subjects) => {
         if (!Array.isArray(subjects) || subjects.length === 0) return
 
-        const payload = subjects.map((subject) => ({
-          ...subject,
-          id: subject.id || crypto.randomUUID(),
-          topics: (subject.topics || []).map((topic) => ({
-            ...topic,
-            id: topic.id || crypto.randomUUID(),
-            subtopics: topic.subtopics || [],
-          })),
-        }))
+        const payload = subjects
+          .map((subject) => normalizeSubject(subject))
+          .filter((subject) => subject.name)
 
         dispatch({ type: 'addSubjects', payload })
 
         await Promise.allSettled(payload.map((subject) => learningService.createSubject(subject)))
+      },
+      updateSubject: async (subjectId, updates) => {
+        const existingSubject = state.subjects.find((entry) => entry.id === subjectId)
+        if (!existingSubject) return
+
+        const payload = normalizeSubject({ ...existingSubject, ...updates })
+
+        dispatch({ type: 'updateSubject', payload })
+
+        try {
+          await learningService.updateSubject(subjectId, {
+            ...updates,
+            ...(updates.topics !== undefined ? { topics: normalizeTopics(updates.topics) } : {}),
+          })
+        } catch (updateError) {
+          dispatch({ type: 'updateSubject', payload: existingSubject })
+          throw updateError
+        }
+      },
+      deleteSubject: async (subjectId) => {
+        const existingSubject = state.subjects.find((entry) => entry.id === subjectId)
+        if (!existingSubject) return
+
+        const existingTasks = state.tasks.filter((entry) => entry.subjectId === subjectId)
+
+        dispatch({ type: 'removeSubject', payload: subjectId })
+
+        try {
+          await learningService.deleteSubject(subjectId)
+        } catch (deleteError) {
+          dispatch({
+            type: 'restoreSubjectWithTasks',
+            payload: {
+              subject: existingSubject,
+              tasks: existingTasks,
+            },
+          })
+          throw deleteError
+        }
       },
       toggleTask: async (taskId) => {
         dispatch({ type: 'toggleTask', payload: taskId })
@@ -471,7 +580,7 @@ export function LearningProvider({ children }) {
         }
       },
     }),
-    [state.activeSession, state.subjects, state.tasks, state.behavior],
+    [state.activeSession, state.subjects, state.tasks],
   )
 
   const selectors = useMemo(() => {

@@ -7,7 +7,6 @@ import {
   howItWorksFeatureGroups,
   howItWorksHighlights,
   howItWorksSteps,
-  howItWorksUpdateHint,
 } from './howItWorksContent.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 
@@ -131,6 +130,12 @@ export default function HowItWorksPage() {
             )
           })}
         </div>
+
+        <SectionWrapper className="pb-10">
+          <p className="text-center text-sm font-medium italic text-neutral-600 md:text-base">
+            Relax, topper. The syllabus is not a final boss, and you are not supposed to speedrun your entire future before Friday.
+          </p>
+        </SectionWrapper>
       </SectionWrapper>
 
       <SectionWrapper
@@ -199,12 +204,6 @@ export default function HowItWorksPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper className="pb-10">
-        <div className="rounded-3xl border border-amber-300/60 bg-amber-50/90 p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Keep This Page Fresh</p>
-          <p className="mt-2 text-sm text-amber-900 md:text-base">{howItWorksUpdateHint}</p>
-        </div>
-      </SectionWrapper>
     </div>
   )
 }

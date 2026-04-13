@@ -11,7 +11,7 @@ function buildContextString(context = {}) {
   let contextStr = ''
 
   if (subject) {
-    contextStr += `\nSubject: ${subject.title}\nDescription: ${subject.description || 'N/A'}`
+    contextStr += `\nSubject: ${subject.title || subject.name || 'General'}\nDescription: ${subject.description || 'N/A'}`
   }
 
   if (task) {
@@ -175,36 +175,101 @@ Keep the answer concise, structured, and actionable.`
  * Build quiz prompt
  */
 function buildQuizPrompt(input = {}, context = {}) {
-  const { count = 5, difficulty = 'beginner', focus = '' } = input
+  const { count = 5, difficulty = 'beginner', severity = '', focus = '', topic = '', subtopic = '' } = input
   const contextStr = buildContextString(context)
+  const normalizedDifficulty = severity || difficulty
 
-  return `Create a study quiz for the learner.
+  return `Create a study quiz for the learner and return ONLY valid JSON.
 
 Question count: ${count}
-Difficulty: ${difficulty}
-Focus topic: ${focus || 'Use the current subject if available'}
+Difficulty: ${normalizedDifficulty}
+Topic: ${topic || 'Use the current subject topic'}
+Subtopic: ${subtopic || 'Use the current subject subtopic'}
+Focus topic: ${focus || 'Use the selected subject and subtopic'}
 
 ${contextStr ? '\nContext:\n' + contextStr : ''}
 
 Requirements:
-- Mix short-answer and multiple-choice questions
-- Keep the questions aligned to the subject context
-- Start easy and increase difficulty slightly
-- Include an answer key after the questions
-- Add one-line explanations for each answer
+- Use ONLY multiple-choice questions
+- Keep questions aligned to the selected subject + subtopic
+- Include exactly 4 options per question (A, B, C, D)
+- Include one correct option and short explanation for each question
 
-Format the response like this:
-**Quiz**
-1. Question text
-   - A. Option
-   - B. Option
-   - C. Option
-   - D. Option
+JSON schema (return only this JSON object, no markdown):
+{
+  "title": "string",
+  "instructions": "string",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "string",
+      "options": [
+        { "key": "A", "text": "string" },
+        { "key": "B", "text": "string" },
+        { "key": "C", "text": "string" },
+        { "key": "D", "text": "string" }
+      ],
+      "correctOption": "A",
+      "explanation": "string"
+    }
+  ]
+}
 
-**Answers**
-1. Correct answer with a short explanation
+Keep wording clear, exam-oriented, and age-appropriate.`
+}
 
-Keep the quiz clear, useful, and easy to review.`
+function buildQuizEvaluationPrompt(input = {}, context = {}) {
+  const {
+    difficulty = 'beginner',
+    topic = '',
+    subtopic = '',
+    totalQuestions = 0,
+    answeredCount = 0,
+    correctCount = 0,
+    scorePercent = 0,
+    questionResults = [],
+  } = input
+  const contextStr = buildContextString(context)
+
+  const reviewLines = questionResults
+    .map((entry, idx) => {
+      const selected = entry.selectedOption || 'Not answered'
+      return `${idx + 1}. ${entry.question}\nSelected: ${selected}\nCorrect: ${entry.correctOption}\nCorrectness: ${entry.isCorrect ? 'Correct' : 'Incorrect'}`
+    })
+    .join('\n\n')
+
+  return `You are evaluating a student's quiz performance.
+
+Subject: ${context.subject?.title || context.subject?.name || 'General'}
+Topic: ${topic || 'General topic'}
+Subtopic: ${subtopic || 'General subtopic'}
+Difficulty: ${difficulty}
+
+Score summary:
+- Total questions: ${totalQuestions}
+- Answered: ${answeredCount}
+- Correct: ${correctCount}
+- Percentage: ${scorePercent}%
+
+Question review:
+${reviewLines || 'No question-level details'}
+
+${contextStr ? '\nContext:\n' + contextStr : ''}
+
+Write concise actionable feedback in this format:
+**Performance Summary**
+- ...
+
+**What You Did Well**
+- ...
+
+**Fix These Gaps**
+1. ...
+2. ...
+
+**Next 20-Minute Plan**
+1. ...
+2. ...`
 }
 
 /**
@@ -1150,6 +1215,8 @@ function buildPrompt({ type, input, context = {} }) {
       return buildDailyPlanPrompt(input, context)
     case 'quiz':
       return buildQuizPrompt(input, context)
+    case 'quiz_evaluation':
+      return buildQuizEvaluationPrompt(input, context)
     case 'session_summary':
       return buildSessionSummaryPrompt(input, context)
     case 'reminder':
@@ -1229,6 +1296,7 @@ module.exports = {
   buildTaskBreakdownPrompt,
   buildDailyPlanPrompt,
   buildQuizPrompt,
+  buildQuizEvaluationPrompt,
   buildSessionSummaryPrompt,
   buildReminderPrompt,
   buildNoteAnalyzerPrompt,

@@ -209,7 +209,7 @@ router.put(
     }
 
     const nextRole = typeof body.role === 'string' ? body.role.trim() : existingProfile.role
-    if (nextRole && !['school', 'college'].includes(nextRole)) {
+    if (nextRole && !['school', 'college', 'selfLearner'].includes(nextRole)) {
       return res.status(400).json({ message: 'Invalid role selected.' })
     }
 

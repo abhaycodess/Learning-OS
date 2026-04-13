@@ -70,7 +70,7 @@ const EMPTY_STATES = {
   // Analytics/Progress
   noProgress: {
     title: `No data yet.`,
-    subtitle: 'Start a session and we'll have stories to tell.',
+    subtitle: 'Start a session and we will have stories to tell.',
     cta: 'Begin focus session',
     icon: '📊',
     href: '/focus?quickStart=true',

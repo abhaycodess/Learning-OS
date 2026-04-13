@@ -100,6 +100,16 @@ export async function generateQuiz(payload = {}) {
 }
 
 /**
+ * Evaluate submitted quiz answers and get AI feedback
+ */
+export async function evaluateQuiz(payload = {}) {
+  return apiClient('/ai/quiz/evaluate', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+/**
  * Generate a personalized study reminder
  */
 export async function generateStudyReminder(payload = {}) {
@@ -139,6 +149,7 @@ export default {
   breakDownTask,
   generateDailyPlan,
   generateQuiz,
+  evaluateQuiz,
   generateStudyReminder,
   analyzeNotes,
   runFeatureTool,

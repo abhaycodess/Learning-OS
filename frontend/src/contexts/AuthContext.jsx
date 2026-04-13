@@ -234,7 +234,7 @@ export function AuthProvider({ children }) {
         setLoading(false)
       }
     },
-    [API_BASE, applySessionUser],
+    [applySessionUser],
   )
 
   const signup = useCallback(
@@ -285,7 +285,7 @@ export function AuthProvider({ children }) {
         setLoading(false)
       }
     },
-    [API_BASE, applySessionUser],
+    [applySessionUser],
   )
 
   const logout = useCallback(() => {

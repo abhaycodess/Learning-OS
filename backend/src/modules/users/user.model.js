@@ -22,7 +22,7 @@ const userProfileSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['school', 'college', ''],
+      enum: ['school', 'college', 'selfLearner', ''],
       default: '',
     },
     goal: {

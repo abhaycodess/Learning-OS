@@ -1,14 +1,15 @@
-import { BookOpen, TrendingUp, Star, BarChart3 } from 'lucide-react'
+import { createElement } from 'react'
+import { TrendingUp, Star, BarChart3 } from 'lucide-react'
 import { BrandMark } from '../../../components/BrandMark.jsx'
 
-const FeatureCard = ({ icon: Icon, title, description, delay }) => (
+const FeatureCard = ({ icon, title, description, delay }) => (
   <div
     className="group cursor-pointer animate-up"
     style={{ animationDelay: `${delay}s` }}
   >
     <div className="flex items-start gap-4 p-4 rounded-xl transition-all duration-300 hover:bg-white/10 backdrop-blur-sm border border-white/10 hover:border-white/30">
       <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-white/40 to-white/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-        <Icon className="w-5 h-5 text-white" />
+        {createElement(icon, { className: 'w-5 h-5 text-white' })}
       </div>
       <div>
         <div className="font-semibold text-white mb-1 group-hover:translate-x-1 transition-transform">

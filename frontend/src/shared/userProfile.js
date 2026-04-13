@@ -1,4 +1,4 @@
-const ROLE_OPTIONS = ['school', 'college']
+const ROLE_OPTIONS = ['school', 'college', 'selfLearner']
 const GOAL_OPTIONS = ['crack-exam', 'improve-concepts', 'learn-skills', 'stay-consistent']
 const STUDY_PREFERENCE_OPTIONS = ['videos', 'notes', 'practice', 'mixed']
 const LEVEL_OPTIONS = ['beginner', 'intermediate', 'advanced']

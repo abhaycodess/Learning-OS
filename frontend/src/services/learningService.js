@@ -7,6 +7,15 @@ export const learningService = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  updateSubject: (id, payload) =>
+    apiClient(`/subjects/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  deleteSubject: (id) =>
+    apiClient(`/subjects/${id}`, {
+      method: 'DELETE',
+    }),
   createTask: (payload) =>
     apiClient('/tasks', {
       method: 'POST',

@@ -193,7 +193,12 @@ export default function SignupForm({ onSubmit, loading }) {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      const { confirmPassword, agreeToTerms, ...submitData } = formData
+      const submitData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      }
       await onSubmit(submitData)
     }
   }

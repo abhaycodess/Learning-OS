@@ -3,14 +3,14 @@
  * Main page for AI Study Coach features: Chat, Summarize, Doubt Solver
  */
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, FileText, HelpCircle, MessageSquare, RotateCcw, Sparkles } from 'lucide-react'
 import { AIChatPanel } from './components/AIChatPanel'
 import { DailyPlanPanel } from './components/DailyPlanPanel'
 import { QuizPanel } from './components/QuizPanel'
 import { useAIChat } from './hooks/useAIChat'
 import { useLearningStore } from '../../hooks/useLearningStore'
-import { analyzeNotes, generateDailyPlan, generateQuiz, runFeatureTool, summarizeNotes, solveDoubt } from './service'
+import { analyzeNotes, evaluateQuiz, generateDailyPlan, generateQuiz, runFeatureTool, summarizeNotes, solveDoubt } from './service'
 import { useToast } from '../../hooks/useToast'
 import { cn } from '../../utils/cn'
 import nexisAvatar from '../../assets/nexis-avatar.svg'
@@ -222,8 +222,11 @@ function StudyCoachPage() {
       subject:
         state.subjects && state.subjects.length > 0
           ? {
-              title: state.subjects[0]?.title,
-              description: state.subjects[0]?.description,
+              id: state.subjects[0]?.id,
+              name: state.subjects[0]?.name,
+              title: state.subjects[0]?.name,
+              description: `${state.subjects[0]?.topics?.length || 0} topics configured`,
+              topics: state.subjects[0]?.topics || [],
             }
           : null,
       userStats: {
@@ -337,7 +340,7 @@ function StudyCoachPage() {
           {activeTab === 'summarize' && <SummarizeTab context={aiContext} />}
           {activeTab === 'note-analyzer' && <NoteAnalyzerTab context={aiContext} />}
           {activeTab === 'doubt' && <DoubtTab context={aiContext} />}
-          {activeTab === 'quiz' && <QuizTab context={aiContext} />}
+          {activeTab === 'quiz' && <QuizTab context={aiContext} subjects={state.subjects || []} />}
           {activeTab === 'daily-plan' && <DailyPlanTab context={aiContext} tasks={prioritizedTasks} />}
           {activeTab === 'power-tools' && <FeatureToolsTab context={aiContext} />}
         </div>
@@ -811,30 +814,167 @@ function DailyPlanTab({ context, tasks }) {
   )
 }
 
-function QuizTab({ context }) {
+function QuizTab({ context, subjects }) {
   const [quiz, setQuiz] = useState(null)
+  const [quizAnalysis, setQuizAnalysis] = useState(null)
+  const [userAnswers, setUserAnswers] = useState({})
   const [count, setCount] = useState(5)
   const [difficulty, setDifficulty] = useState('beginner')
+  const [selectedSubjectId, setSelectedSubjectId] = useState('')
+  const [selectedSubtopicKey, setSelectedSubtopicKey] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const { toast } = useToast()
 
+  const availableSubjects = useMemo(() => (Array.isArray(subjects) ? subjects : []), [subjects])
+
+  const selectedSubject = useMemo(
+    () => availableSubjects.find((entry) => entry.id === selectedSubjectId) || null,
+    [availableSubjects, selectedSubjectId],
+  )
+
+  const subtopicOptions = useMemo(() => {
+    if (!selectedSubject || !Array.isArray(selectedSubject.topics)) return []
+
+    const options = []
+    selectedSubject.topics.forEach((topic) => {
+      if (!Array.isArray(topic.subtopics) || topic.subtopics.length === 0) return
+
+      topic.subtopics.forEach((subtopic, index) => {
+        const subtopicName =
+          typeof subtopic === 'string'
+            ? subtopic
+            : subtopic && typeof subtopic === 'object' && typeof subtopic.name === 'string'
+              ? subtopic.name
+              : ''
+
+        if (!subtopicName) return
+        options.push({
+          key: `${topic.id}::${index}`,
+          topicName: topic.name,
+          subtopic: subtopicName,
+          label: `${topic.name} - ${subtopicName}`,
+        })
+      })
+    })
+
+    return options
+  }, [selectedSubject])
+
+  const selectedSubtopic = useMemo(
+    () => subtopicOptions.find((entry) => entry.key === selectedSubtopicKey) || null,
+    [subtopicOptions, selectedSubtopicKey],
+  )
+
+  useEffect(() => {
+    if (availableSubjects.length === 0) {
+      setSelectedSubjectId('')
+      return
+    }
+
+    if (!selectedSubjectId || !availableSubjects.some((entry) => entry.id === selectedSubjectId)) {
+      setSelectedSubjectId(availableSubjects[0].id)
+    }
+  }, [availableSubjects, selectedSubjectId])
+
+  useEffect(() => {
+    if (subtopicOptions.length === 0) {
+      setSelectedSubtopicKey('')
+      return
+    }
+
+    if (!selectedSubtopicKey || !subtopicOptions.some((entry) => entry.key === selectedSubtopicKey)) {
+      setSelectedSubtopicKey(subtopicOptions[0].key)
+    }
+  }, [selectedSubtopicKey, subtopicOptions])
+
   const handleGenerate = async () => {
+    if (!selectedSubject) {
+      toast({ message: 'Choose a subject before generating quiz.', tone: 'error' })
+      return
+    }
+
+    if (!selectedSubtopic) {
+      toast({ message: 'Choose a subtopic for targeted quiz practice.', tone: 'error' })
+      return
+    }
+
     try {
       setIsLoading(true)
       const result = await generateQuiz({
-        subject: context.subject,
+        subject: {
+          id: selectedSubject.id,
+          name: selectedSubject.name,
+          title: selectedSubject.name,
+          description: `${selectedSubject.topics?.length || 0} topics configured`,
+        },
         userStats: context.userStats,
         count,
         difficulty,
-        focus: context.subject?.title || '',
+        severity: difficulty,
+        topic: selectedSubtopic.topicName,
+        subtopic: selectedSubtopic.subtopic,
+        focus: `${selectedSubtopic.topicName}: ${selectedSubtopic.subtopic}`,
       })
 
       setQuiz(result.quiz)
+      setQuizAnalysis(null)
+      setUserAnswers({})
       toast({ message: 'Quiz generated!', tone: 'success' })
     } catch (error) {
       toast({ message: error.message || 'Failed to generate quiz', tone: 'error' })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleSelectAnswer = (questionId, optionKey) => {
+    setUserAnswers((prev) => ({
+      ...prev,
+      [questionId]: optionKey,
+    }))
+  }
+
+  const handleAnalyze = async (allowPartial = false) => {
+    if (!quiz || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+      toast({ message: 'Generate a quiz first.', tone: 'error' })
+      return
+    }
+
+    const answeredCount = quiz.questions.filter((question) => Boolean(userAnswers?.[question.id])).length
+
+    if (answeredCount === 0) {
+      toast({ message: 'Select at least one answer before analysis.', tone: 'error' })
+      return
+    }
+
+    if (!allowPartial && answeredCount < quiz.questions.length) {
+      toast({ message: 'Answer all questions or use Analyze Partial Attempt.', tone: 'error' })
+      return
+    }
+
+    try {
+      setIsAnalyzing(true)
+      const result = await evaluateQuiz({
+        quiz,
+        userAnswers,
+        subject: {
+          id: selectedSubject?.id,
+          name: selectedSubject?.name,
+          title: selectedSubject?.name,
+        },
+        difficulty,
+        severity: difficulty,
+        topic: selectedSubtopic?.topicName || '',
+        subtopic: selectedSubtopic?.subtopic || '',
+      })
+
+      setQuizAnalysis(result)
+      toast({ message: 'Quiz analysis ready!', tone: 'success' })
+    } catch (error) {
+      toast({ message: error.message || 'Failed to analyze quiz', tone: 'error' })
+    } finally {
+      setIsAnalyzing(false)
     }
   }
 
@@ -846,8 +986,43 @@ function QuizTab({ context }) {
           <h3 className="font-semibold">Quiz settings</h3>
         </div>
         <p className="text-xs text-[var(--text-muted)] mb-4">
-          Generate a quick practice quiz from the current subject.
+          Choose subject and subtopic, then generate a quiz at your selected severity.
         </p>
+
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Subject</label>
+        <select
+          value={selectedSubjectId}
+          onChange={(event) => setSelectedSubjectId(event.target.value)}
+          className="w-full rounded-lg border border-[var(--line)] bg-[var(--bg-surface-alt)] px-3 py-2 text-sm text-[var(--text-main)] mb-4"
+        >
+          {availableSubjects.length === 0 ? (
+            <option value="">No subjects available</option>
+          ) : (
+            availableSubjects.map((subject) => (
+              <option key={subject.id} value={subject.id}>
+                {subject.name}
+              </option>
+            ))
+          )}
+        </select>
+
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Subtopic</label>
+        <select
+          value={selectedSubtopicKey}
+          onChange={(event) => setSelectedSubtopicKey(event.target.value)}
+          className="w-full rounded-lg border border-[var(--line)] bg-[var(--bg-surface-alt)] px-3 py-2 text-sm text-[var(--text-main)] mb-4"
+          disabled={subtopicOptions.length === 0}
+        >
+          {subtopicOptions.length === 0 ? (
+            <option value="">No subtopics available in this subject</option>
+          ) : (
+            subtopicOptions.map((entry) => (
+              <option key={entry.key} value={entry.key}>
+                {entry.label}
+              </option>
+            ))
+          )}
+        </select>
 
         <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Questions</label>
         <input
@@ -864,7 +1039,7 @@ function QuizTab({ context }) {
           <span>10</span>
         </div>
 
-        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Difficulty</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Severity</label>
         <div className="grid grid-cols-3 gap-2 mb-5">
           {[
             { value: 'beginner', label: 'Beginner' },
@@ -875,7 +1050,7 @@ function QuizTab({ context }) {
               key={value}
               onClick={() => setDifficulty(value)}
               className={cn(
-                'px-3 py-2 rounded-lg border text-xs font-semibold transition-all',
+                'h-10 rounded-lg border text-xs font-semibold transition-all flex items-center justify-center whitespace-nowrap px-2',
                 difficulty === value
                   ? 'bg-primary/10 border-primary/25 text-primary'
                   : 'bg-[var(--bg-surface-alt)] border-[var(--line)] text-[var(--text-muted)] hover:text-[var(--text-main)]',
@@ -888,7 +1063,7 @@ function QuizTab({ context }) {
 
         <button
           onClick={handleGenerate}
-          disabled={isLoading}
+          disabled={isLoading || availableSubjects.length === 0 || subtopicOptions.length === 0}
           className={cn(
             'mt-auto px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2',
             isLoading
@@ -919,7 +1094,15 @@ function QuizTab({ context }) {
 
         {quiz ? (
           <div className="text-sm text-[var(--text-main)] space-y-2 flex-1 overflow-y-auto">
-            <QuizPanel quiz={quiz} />
+            <QuizPanel
+              quiz={quiz}
+              userAnswers={userAnswers}
+              onSelectAnswer={handleSelectAnswer}
+              onAnalyze={handleAnalyze}
+              onAnalyzePartial={() => handleAnalyze(true)}
+              isAnalyzing={isAnalyzing}
+              analysis={quizAnalysis}
+            />
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">

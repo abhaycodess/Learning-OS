@@ -18,6 +18,8 @@
  * Add to frontend/src/index.css:
  */
 
+import React, { createElement } from 'react'
+
 // CSS SNIPPETS TO ADD
 const MICRO_INTERACTIONS_CSS = `
 /* BUTTON STATES */
@@ -330,7 +332,7 @@ export const FocusRating = ({ value, onChange }) => {
 }
 
 // PATTERN 5: Icon Action Button
-export const IconButton = ({ icon: Icon, onClick, className = '' }) => (
+export const IconButton = ({ icon, onClick, className = '' }) => (
   <button
     onClick={onClick}
     className={`
@@ -339,7 +341,7 @@ export const IconButton = ({ icon: Icon, onClick, className = '' }) => (
       ${className}
     `}
   >
-    <Icon size={20} />
+    {createElement(icon, { size: 20 })}
   </button>
 )
 

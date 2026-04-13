@@ -10,7 +10,7 @@ const { summarizeHandler } = require('./controllers/summarizeController')
 const { doubtHandler } = require('./controllers/doubtController')
 const { taskBreakdownHandler } = require('./controllers/taskBreakdownController')
 const { dailyPlanHandler } = require('./controllers/dailyPlanController')
-const { quizHandler } = require('./controllers/quizController')
+const { quizHandler, evaluateQuizHandler } = require('./controllers/quizController')
 const { reminderHandler } = require('./controllers/reminderController')
 const { noteAnalyzerHandler } = require('./controllers/noteAnalyzerController')
 const { featureToolHandler } = require('./controllers/featureToolsController')
@@ -72,6 +72,7 @@ router.post('/task-breakdown', asyncHandler(taskBreakdownHandler))
  * Generate a study quiz from the current subject or focus area
  */
 router.post('/quiz', asyncHandler(quizHandler))
+router.post('/quiz/evaluate', asyncHandler(evaluateQuizHandler))
 
 /**
  * POST /api/ai/daily-plan

@@ -504,6 +504,13 @@ export default function ProfilePage() {
               onClick={() => updateField('role', 'college')}
               className={isChanged.role ? changedHighlight : ''}
             />
+            <SelectionCard
+              selected={form.role === 'selfLearner'}
+              label="Self Learner"
+              icon={Sparkles}
+              onClick={() => updateField('role', 'selfLearner')}
+              className={isChanged.role ? changedHighlight : ''}
+            />
           </div>
         </section>
 

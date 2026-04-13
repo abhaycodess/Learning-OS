@@ -63,6 +63,20 @@ const validateSubject = (data) => {
         if (!topic.id || !topic.name) {
           errors.push(`Topic at index ${idx} must have id and name`)
         }
+
+        if (topic.subtopics !== undefined) {
+          if (!Array.isArray(topic.subtopics)) {
+            errors.push(`Topic at index ${idx} subtopics must be an array`)
+          } else {
+            topic.subtopics.forEach((subtopic, subIdx) => {
+              if (typeof subtopic === 'string') return
+
+              if (!subtopic || typeof subtopic !== 'object' || !subtopic.id || !subtopic.name) {
+                errors.push(`Subtopic at topic ${idx}, index ${subIdx} must have id and name`)
+              }
+            })
+          }
+        }
       })
     }
   }

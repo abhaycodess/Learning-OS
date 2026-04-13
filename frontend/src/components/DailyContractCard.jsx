@@ -17,7 +17,6 @@ export default function DailyContractCard({
   taskName = null,
 }) {
   const progress = targetMinutes > 0 ? Math.round((actualMinutes / targetMinutes) * 100) : 0
-  const isCompleted = actualMinutes >= targetMinutes
   const remaining = Math.max(0, targetMinutes - actualMinutes)
 
   // Determine styling based on status

@@ -8,7 +8,6 @@ import Button from './Button'
 export default function MissedDayBanner({
   missedYesterday = false,
   onStartClick = () => {},
-  taskName = null,
   className = '',
 }) {
   if (!missedYesterday) {

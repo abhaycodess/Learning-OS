@@ -208,6 +208,13 @@ function StepIdentity({ form, onChange, onRoleSelect, onPhotoPick, onPhotoChange
             description="For semester-level progress and skill-based growth."
             onClick={() => onRoleSelect('college')}
           />
+          <SelectionCard
+            selected={form.role === 'selfLearner'}
+            label="Self Learner"
+            icon={Sparkles}
+            description="For personal skill-building, career pivots, and independent learning goals."
+            onClick={() => onRoleSelect('selfLearner')}
+          />
         </div>
       </section>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ClipboardList, Clock3, PlusCircle, Trash2, Zap } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button.jsx'
@@ -110,7 +110,7 @@ function getTaskStatus(task) {
   return 'upcoming'
 }
 
-function TaskActionButton({ label, onClick, icon: Icon, tone = 'neutral' }) {
+function TaskActionButton({ label, onClick, icon, tone = 'neutral' }) {
   const toneClassByType = {
     positive:
       'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300',
@@ -128,7 +128,7 @@ function TaskActionButton({ label, onClick, icon: Icon, tone = 'neutral' }) {
       title={label}
       className={`group relative h-11 w-11 rounded-xl border p-0 shadow-sm ${toneClassByType[tone] || toneClassByType.neutral}`}
     >
-      <Icon size={24} strokeWidth={3} />
+      {createElement(icon, { size: 24, strokeWidth: 3 })}
       <span className="pointer-events-none absolute bottom-full right-0 z-10 mb-2 hidden whitespace-nowrap rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-700 shadow-md group-hover:block">
         {label}
       </span>

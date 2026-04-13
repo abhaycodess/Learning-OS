@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { createElement, useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   BarChart3,
@@ -31,7 +31,7 @@ const links = [
   { to: '/profile', label: 'Profile', icon: UserRound },
 ]
 
-function SidebarLink({ to, label, icon: Icon, expanded }) {
+function SidebarLink({ to, label, icon, expanded }) {
   return (
     <NavLink
       to={to}
@@ -40,14 +40,14 @@ function SidebarLink({ to, label, icon: Icon, expanded }) {
       className={({ isActive }) => cn('sidebar-nav-item', expanded ? 'is-expanded' : 'is-collapsed', isActive ? 'active' : 'inactive')}
     >
       <span className="sidebar-nav-icon" aria-hidden="true">
-        <Icon size={18} />
+        {createElement(icon, { size: 18 })}
       </span>
       <span className={cn('sidebar-nav-label', expanded && 'is-visible')}>{label}</span>
     </NavLink>
   )
 }
 
-function MobileSidebarLink({ to, label, icon: Icon }) {
+function MobileSidebarLink({ to, label, icon }) {
   return (
     <NavLink
       to={to}
@@ -58,7 +58,7 @@ function MobileSidebarLink({ to, label, icon: Icon }) {
         )
       }
     >
-      <Icon size={15} />
+      {createElement(icon, { size: 15 })}
       <span>{label}</span>
     </NavLink>
   )
@@ -122,12 +122,6 @@ export default function MainLayout() {
 
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
-  }, [isSidebarPinned])
-
-  useEffect(() => {
-    if (isSidebarPinned) {
-      openSidebar()
-    }
   }, [isSidebarPinned])
 
   useEffect(() => {
@@ -204,6 +198,12 @@ export default function MainLayout() {
   }
 
   const searchPlaceholder = searchPlaceholderMap[location.pathname] || 'Search tasks, subjects, sessions...'
+
+  useEffect(() => {
+    if (isSidebarPinned && !isSidebarVisible) {
+      setIsSidebarVisible(true)
+    }
+  }, [isSidebarPinned, isSidebarVisible])
 
   const handleContentScroll = (event) => {
     const nextCondensed = event.currentTarget.scrollTop > 12

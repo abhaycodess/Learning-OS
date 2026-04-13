@@ -114,7 +114,7 @@ const GREETING_TEMPLATES = {
 }
 
 export function useSmartGreetingEngine({
-  firstName = 'there',
+  firstName: _firstName = 'there',
   timeOfDay = null,
   lastSessionMinutesAgo = null,
   lastSessionDurationMinutes = null,

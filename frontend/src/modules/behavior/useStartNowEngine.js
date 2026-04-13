@@ -98,7 +98,7 @@ export function useStartNowEngine({
   tasks = [],
   subjects = [],
   sessions = [],
-  userProfile = {},
+  userProfile: _userProfile = {},
 }) {
   const selectedTask = useMemo(() => {
     // Filter to only incomplete tasks
@@ -141,7 +141,7 @@ export function useStartNowEngine({
       subjectId: bestSubject?.id || '',
       subjectName: bestSubject?.name || '',
       type: 'Study',
-      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      dueDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0],
       plannedDurationMinutes: 25,

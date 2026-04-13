@@ -201,5 +201,3 @@ export const howItWorksFeatureGroups = [
   },
 ]
 
-export const howItWorksUpdateHint =
-  'When you add a new feature, update this file so the How It Works page always matches the real app.'

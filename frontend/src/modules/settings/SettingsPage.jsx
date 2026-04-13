@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { createElement, useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   Bell,
@@ -76,7 +76,7 @@ function createInitialSettings(userId, userProfile, fallbackAccent = 'violet') {
   }
 }
 
-function ToggleRow({ label, description, icon: Icon, checked, onChange }) {
+function ToggleRow({ label, description, icon, checked, onChange }) {
   return (
     <button
       type="button"
@@ -87,7 +87,7 @@ function ToggleRow({ label, description, icon: Icon, checked, onChange }) {
     >
       <span className="flex items-start gap-3">
         <span className={`mt-0.5 ${checked ? 'text-primary' : 'text-neutral-500'}`}>
-          <Icon size={16} />
+          {createElement(icon, { size: 16 })}
         </span>
         <span>
           <p className="setting-choice-title text-sm font-semibold text-neutral-900">{label}</p>
@@ -106,7 +106,7 @@ function ToggleRow({ label, description, icon: Icon, checked, onChange }) {
   )
 }
 
-function SelectCard({ title, description, selected, onClick, icon: Icon }) {
+function SelectCard({ title, description, selected, onClick, icon }) {
   return (
     <button
       type="button"
@@ -118,7 +118,10 @@ function SelectCard({ title, description, selected, onClick, icon: Icon }) {
       } ${selected ? 'is-selected' : ''}`}
     >
       <div className="flex items-center gap-2">
-        <Icon size={16} className={selected ? 'text-primary' : 'text-neutral-500'} />
+        {createElement(icon, {
+          size: 16,
+          className: selected ? 'text-primary' : 'text-neutral-500',
+        })}
         <p className="setting-choice-title text-sm font-semibold text-neutral-900">{title}</p>
       </div>
       <p className="setting-choice-copy mt-1 text-xs text-neutral-500">{description}</p>
@@ -140,7 +143,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     setSettings(createInitialSettings(userId, profile, accent))
-  }, [userId, profile])
+  }, [userId, profile, accent])
 
   const updateSetting = (key, value) => {
     setSettings((prev) => {

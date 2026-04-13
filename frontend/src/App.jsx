@@ -7,6 +7,7 @@ const MainLayout = lazy(() => import('./layouts/MainLayout.jsx'))
 const DashboardPage = lazy(() => import('./modules/dashboard/DashboardPage.jsx'))
 const TasksPage = lazy(() => import('./modules/tasks/TasksPage.jsx'))
 const SubjectsPage = lazy(() => import('./modules/subjects/SubjectsPage.jsx'))
+const SubjectWorkspacePage = lazy(() => import('./modules/subjects/SubjectWorkspacePage.jsx'))
 const AnalyticsPage = lazy(() => import('./modules/analytics/AnalyticsPage.jsx'))
 const FocusPage = lazy(() => import('./modules/focus/FocusPage.jsx'))
 const StudyCoachPage = lazy(() => import('./modules/ai/StudyCoachPage.jsx'))
@@ -59,6 +60,7 @@ function App() {
           <Route path="/dashboard" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <DashboardPage />}</PrivateRoute>} />
           <Route path="/tasks" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <TasksPage />}</PrivateRoute>} />
           <Route path="/subjects" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <SubjectsPage />}</PrivateRoute>} />
+          <Route path="/subjects/:id" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <SubjectWorkspacePage />}</PrivateRoute>} />
           <Route path="/analytics" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <AnalyticsPage />}</PrivateRoute>} />
           <Route path="/study-coach" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <StudyCoachPage />}</PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />

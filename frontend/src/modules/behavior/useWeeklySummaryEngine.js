@@ -53,7 +53,7 @@ function isThisWeek(date, weekStartDate = new Date()) {
 /**
  * Generate honest verdict based on metrics
  */
-function generateVerdict(completionRate, consistencyScore, avgFocusRating) {
+function generateVerdict(completionRate, consistencyScore) {
   if (completionRate >= 0.8 && consistencyScore >= 0.8) {
     return "You're actually doing the work. Not many people do."
   }
@@ -131,7 +131,7 @@ export function useWeeklySummaryEngine({
         : null
 
     // Generate verdict and suggestion
-    const verdict = generateVerdict(completionRate, consistencyScore, averageFocusRating || 3)
+    const verdict = generateVerdict(completionRate, consistencyScore)
     const suggestion = generateSuggestion(
       completionRate,
       consistencyScore,
