@@ -92,7 +92,7 @@ export default function SubjectsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="subjects-page space-y-4">
       <SectionHeading
         title="Subjects Workspace"
         subtitle="A clean, Notion-style home for your learning system. Open any subject to manage topics, subtopics, and notes."

@@ -193,7 +193,7 @@ export default function SubjectWorkspacePage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="subjects-page space-y-5">
       <Button variant="ghost" onClick={() => navigate('/subjects')} className="inline-flex items-center gap-2">
         <ArrowLeft size={14} />
         Back to Subjects
