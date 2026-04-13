@@ -43,8 +43,8 @@ export default function SubjectWorkspacePage() {
           Back to Subjects
         </Button>
         <Card className="p-8 text-center" tone="soft">
-          <p className="text-lg font-semibold text-neutral-900">Subject not found</p>
-          <p className="mt-1 text-sm text-neutral-600">It may have been deleted.</p>
+          <p className="text-lg font-semibold text-[var(--text-main)]">Subject not found</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">It may have been deleted.</p>
         </Card>
       </div>
     )
@@ -199,12 +199,12 @@ export default function SubjectWorkspacePage() {
         Back to Subjects
       </Button>
 
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-        <div className="h-36 w-full border-b border-neutral-200" style={{ backgroundImage: visual.coverImage }} />
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-surface)]">
+        <div className="h-36 w-full border-b border-[var(--line)]" style={{ backgroundImage: visual.coverImage }} />
         <div className="p-6">
           <p className="text-4xl">{visual.emoji}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-neutral-900">{subject.name}</h1>
-          <p className="mt-2 text-sm text-neutral-600">A clean workspace for topics, subtopics, and notes.</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[var(--text-main)]">{subject.name}</h1>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">A clean workspace for topics, subtopics, and notes.</p>
         </div>
       </section>
 
@@ -215,7 +215,7 @@ export default function SubjectWorkspacePage() {
       )}
 
       <Card className="p-5">
-        <h2 className="text-lg font-semibold text-neutral-900">Topics</h2>
+        <h2 className="text-lg font-semibold text-[var(--text-main)]">Topics</h2>
         <div className="mt-3 flex gap-2">
           <Input
             value={newTopicName}
@@ -233,12 +233,12 @@ export default function SubjectWorkspacePage() {
         {(subject.topics || []).map((topic) => (
           <Card key={topic.id} className="p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-lg font-semibold text-neutral-900">{topic.name}</h3>
+              <h3 className="text-lg font-semibold text-[var(--text-main)]">{topic.name}</h3>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => renameTopic(topic.id, topic.name)}
-                  className="rounded-md border border-neutral-200 px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
+                  className="rounded-md border border-[var(--line)] px-2 py-1 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-surface-alt)]"
                 >
                   Rename Topic
                 </button>
@@ -266,14 +266,14 @@ export default function SubjectWorkspacePage() {
 
             <div className="mt-4 space-y-3">
               {(topic.subtopics || []).map((subtopic) => (
-                <div key={subtopic.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                <div key={subtopic.id} className="rounded-xl border border-[var(--line)] bg-[var(--bg-surface-alt)] p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-neutral-900">{normalizeSubtopicName(subtopic)}</p>
+                    <p className="text-sm font-semibold text-[var(--text-main)]">{normalizeSubtopicName(subtopic)}</p>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => renameSubtopic(topic.id, subtopic.id, normalizeSubtopicName(subtopic))}
-                        className="rounded-md border border-neutral-200 px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-white"
+                        className="rounded-md border border-[var(--line)] px-2 py-1 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-surface)]"
                       >
                         Rename
                       </button>
@@ -287,20 +287,20 @@ export default function SubjectWorkspacePage() {
                     </div>
                   </div>
 
-                  <label className="mt-2 block text-xs font-semibold uppercase tracking-[0.08em] text-neutral-500">
+                  <label className="mt-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                     Notes
                   </label>
                   <textarea
                     defaultValue={typeof subtopic.notes === 'string' ? subtopic.notes : ''}
                     onBlur={(event) => saveNotesFromBlur(topic.id, subtopic, event.target.value)}
                     placeholder="Capture concise notes for this subtopic..."
-                    className="mt-2 min-h-24 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-primary"
+                    className="mt-2 min-h-24 w-full rounded-lg border border-[var(--line)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-primary"
                   />
                 </div>
               ))}
 
               {(topic.subtopics || []).length === 0 && (
-                <p className="text-sm text-neutral-500">No subtopics yet. Add one to start notes.</p>
+                <p className="text-sm text-[var(--text-muted)]">No subtopics yet. Add one to start notes.</p>
               )}
             </div>
           </Card>
@@ -308,7 +308,7 @@ export default function SubjectWorkspacePage() {
 
         {(subject.topics || []).length === 0 && (
           <Card className="p-6 text-center" tone="soft">
-            <p className="text-sm text-neutral-600">No topics yet. Add your first topic above.</p>
+            <p className="text-sm text-[var(--text-muted)]">No topics yet. Add your first topic above.</p>
           </Card>
         )}
       </div>

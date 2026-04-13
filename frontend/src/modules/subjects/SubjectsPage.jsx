@@ -100,21 +100,21 @@ export default function SubjectsPage() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="p-5" tone="soft">
-          <p className="text-xs uppercase tracking-[0.08em] text-neutral-500">Subjects</p>
-          <p className="mt-2 text-3xl font-semibold text-neutral-900">{stats.totalSubjects}</p>
+          <p className="text-xs uppercase tracking-[0.08em] text-[var(--text-muted)]">Subjects</p>
+          <p className="mt-2 text-3xl font-semibold text-[var(--text-main)]">{stats.totalSubjects}</p>
         </Card>
         <Card className="p-5" tone="soft">
-          <p className="text-xs uppercase tracking-[0.08em] text-neutral-500">Topics</p>
-          <p className="mt-2 text-3xl font-semibold text-neutral-900">{stats.totalTopics}</p>
+          <p className="text-xs uppercase tracking-[0.08em] text-[var(--text-muted)]">Topics</p>
+          <p className="mt-2 text-3xl font-semibold text-[var(--text-main)]">{stats.totalTopics}</p>
         </Card>
         <Card className="p-5" tone="soft">
-          <p className="text-xs uppercase tracking-[0.08em] text-neutral-500">Subtopics</p>
-          <p className="mt-2 text-3xl font-semibold text-neutral-900">{stats.totalSubtopics}</p>
+          <p className="text-xs uppercase tracking-[0.08em] text-[var(--text-muted)]">Subtopics</p>
+          <p className="mt-2 text-3xl font-semibold text-[var(--text-main)]">{stats.totalSubtopics}</p>
         </Card>
       </div>
 
       <Card className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">Create Subject</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Create Subject</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Input
             value={subjectName}
@@ -142,14 +142,14 @@ export default function SubjectsPage() {
 
       {roleQuickStart.length > 0 && (
         <Card className="p-5" tone="soft">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">Quick Start For Your Role</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Quick Start For Your Role</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {roleQuickStart.map((subject) => (
               <button
                 key={subject}
                 type="button"
                 onClick={() => addSingleSubject(subject)}
-                className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50"
+                className="rounded-full border border-[var(--line)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--bg-surface-alt)]"
               >
                 + {subject}
               </button>
@@ -166,8 +166,8 @@ export default function SubjectsPage() {
           }
 
           return (
-            <article key={subject.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-              <div className="h-20 w-full border-b border-neutral-200" style={{ backgroundImage: visual.coverImage }} />
+            <article key={subject.id} className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg-surface)]">
+              <div className="h-20 w-full border-b border-[var(--line)]" style={{ backgroundImage: visual.coverImage }} />
               <div className="p-4">
                 <button
                   type="button"
@@ -175,8 +175,8 @@ export default function SubjectsPage() {
                   className="w-full text-left"
                 >
                   <p className="text-2xl">{visual.emoji}</p>
-                  <p className="mt-1 text-lg font-semibold text-neutral-900">{subject.name}</p>
-                  <p className="mt-1 text-sm text-neutral-600">
+                  <p className="mt-1 text-lg font-semibold text-[var(--text-main)]">{subject.name}</p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)]">
                     {(subject.topics || []).length} topics · {countSubtopics(subject)} subtopics
                   </p>
                   <p className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
@@ -202,23 +202,23 @@ export default function SubjectsPage() {
 
       {(state.subjects || []).length === 0 && (
         <Card className="p-8 text-center" tone="soft">
-          <p className="text-lg font-semibold text-neutral-900">No subjects yet</p>
-          <p className="mt-1 text-sm text-neutral-600">Add one subject to start your workspace.</p>
+          <p className="text-lg font-semibold text-[var(--text-main)]">No subjects yet</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Add one subject to start your workspace.</p>
         </Card>
       )}
 
       {pendingDeleteSubject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-[2px] px-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/35 bg-white/70 p-5 shadow-2xl">
-            <p className="text-lg font-semibold text-neutral-900">Delete Subject</p>
-            <p className="mt-2 text-sm text-neutral-700">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--line)] bg-[var(--bg-surface)]/85 p-5 shadow-2xl">
+            <p className="text-lg font-semibold text-[var(--text-main)]">Delete Subject</p>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               Delete {pendingDeleteSubject.name}? This will also remove linked tasks.
             </p>
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setPendingDeleteSubject(null)}
-                className="rounded-lg border border-neutral-200 bg-white/80 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-white"
+                className="rounded-lg border border-[var(--line)] bg-[var(--bg-surface-alt)] px-3 py-2 text-sm font-semibold text-[var(--text-main)] hover:bg-[var(--bg-surface)]"
               >
                 Cancel
               </button>
