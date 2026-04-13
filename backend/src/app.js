@@ -37,6 +37,24 @@ app.use('/api/snapshot', requireAuth, snapshotRouter)
 app.use('/api/behavior', requireAuth, behaviorRouter)
 app.use('/api/ai', requireAuth, aiLimiter, aiRouter)
 
-app.use(errorMiddleware)
 
-module.exports = { app }
+// Serve static frontend assets
+const path = require('path');
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendDist));
+
+// Debug log for all incoming requests
+app.use((req, res, next) => {
+  console.log('Incoming request:', req.url);
+  next();
+});
+
+// Fallback: serve index.html for all non-API routes (React Router support)
+app.get('*', (req, res, next) => {
+  if (req.url.startsWith('/api/')) return next();
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
+
+app.use(errorMiddleware);
+
+module.exports = { app };
