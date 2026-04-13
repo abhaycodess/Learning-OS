@@ -38,9 +38,11 @@ app.use('/api/behavior', requireAuth, behaviorRouter)
 app.use('/api/ai', requireAuth, aiLimiter, aiRouter)
 
 
-// Serve static frontend assets
+
+// Serve static frontend assets (Render/Node compatibility)
 const path = require('path');
-const frontendDist = path.join(__dirname, '../../frontend/dist');
+const fs = require('fs');
+const frontendDist = path.resolve(__dirname, '../../frontend/dist');
 app.use(express.static(frontendDist));
 
 // Debug log for all incoming requests
@@ -52,7 +54,19 @@ app.use((req, res, next) => {
 // Fallback: serve index.html for all non-API routes (React Router support)
 app.get('*', (req, res, next) => {
   if (req.url.startsWith('/api/')) return next();
-  res.sendFile(path.join(frontendDist, 'index.html'));
+  const indexPath = path.join(frontendDist, 'index.html');
+  fs.access(indexPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error('index.html not found:', indexPath);
+      return res.status(500).send('index.html not found');
+    }
+    try {
+      res.sendFile(indexPath);
+    } catch (e) {
+      console.error('Error sending index.html:', e);
+      res.status(500).send('Error serving index.html');
+    }
+  });
 });
 
 app.use(errorMiddleware);
