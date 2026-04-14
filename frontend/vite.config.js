@@ -22,6 +22,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: true, // Listen on all local IPs
     proxy: {
       '/api': {
         target: process.env.VITE_DEV_API_TARGET || 'http://localhost:4000',
