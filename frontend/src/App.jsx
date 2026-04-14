@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { PrivateRoute } from './components/PrivateRoute.jsx'
 import { useAuth } from './hooks/useAuth.jsx'
+import QuickInputBar from './components/QuickInputBar.jsx'
 
 const MainLayout = lazy(() => import('./layouts/MainLayout.jsx'))
 const DashboardPage = lazy(() => import('./modules/dashboard/DashboardPage.jsx'))
@@ -15,6 +16,7 @@ const AuthPage = lazy(() => import('./modules/auth/AuthPage.jsx'))
 const OnboardingPage = lazy(() => import('./modules/onboarding/OnboardingPage.jsx'))
 const ProfilePage = lazy(() => import('./modules/profile/ProfilePage.jsx'))
 const LandingPage = lazy(() => import('./modules/landing/LandingPage.jsx'))
+const BrainDumpPage = lazy(() => import('./modules/brain-dump/BrainDumpPage.jsx'))
 const HowItWorksPage = lazy(() => import('./modules/landing/HowItWorksPage.jsx'))
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage.jsx'))
 
@@ -42,6 +44,7 @@ function App() {
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/brain-dump" element={<BrainDumpPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/auth" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <AuthPage />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to={requiresOnboarding ? '/onboarding' : '/dashboard'} replace /> : <Navigate to="/auth" replace />} />
@@ -64,12 +67,13 @@ function App() {
           <Route path="/analytics" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <AnalyticsPage />}</PrivateRoute>} />
           <Route path="/study-coach" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <StudyCoachPage />}</PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-          <Route path="/focus" element={<PrivateRoute>{requiresOnboarding ? <Navigate to="/onboarding" replace /> : <FocusPage />}</PrivateRoute>} />
+          <Route path="/focus" element={<FocusPage />} />
           <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to={isAuthenticated ? (requiresOnboarding ? '/onboarding' : '/dashboard') : '/'} replace />} />
       </Routes>
+      <QuickInputBar />
     </Suspense>
   )
 }

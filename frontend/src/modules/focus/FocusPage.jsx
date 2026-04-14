@@ -135,7 +135,7 @@ function CircularProgress({ progress = 0, active = false }) {
 export default function FocusPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const {
     activeTask,
     state,
@@ -178,10 +178,29 @@ export default function FocusPage() {
     }
   }, [userId])
 
-  const pendingTasks = useMemo(
-    () => state.tasks.filter((task) => !task.completed),
-    [state.tasks],
-  )
+  const [guestDataState, setGuestDataState] = useState(null)
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      import('../../utils/guestStorage.js').then((module) => {
+        setGuestDataState(module.getGuestData())
+      })
+    }
+  }, [isAuthenticated])
+
+  const pendingTasks = useMemo(() => {
+    if (!isAuthenticated && guestDataState) {
+      return guestDataState.tasks.filter(t => !t.completed)
+    }
+    return state.tasks.filter((task) => !task.completed)
+  }, [state.tasks, isAuthenticated, guestDataState])
+
+  const activeSession = useMemo(() => {
+    if (!isAuthenticated && guestDataState) {
+      return guestDataState.activeSession
+    }
+    return state.activeSession
+  }, [state.activeSession, isAuthenticated, guestDataState])
 
   const enterFullscreenFocus = async () => {
     if (!focusRootRef.current?.requestFullscreen) return
@@ -214,23 +233,23 @@ export default function FocusPage() {
   }
 
   useEffect(() => {
-    if (!state.activeSession) {
+    if (!activeSession) {
       setElapsed(0)
       return undefined
     }
 
-    setElapsed(getSessionElapsed(state.activeSession))
+    setElapsed(getSessionElapsed(activeSession))
 
-    if (state.activeSession.isPaused) {
+    if (activeSession.isPaused) {
       return undefined
     }
 
     const handle = setInterval(() => {
-      setElapsed(getSessionElapsed(state.activeSession))
+      setElapsed(getSessionElapsed(activeSession))
     }, 1000)
 
     return () => clearInterval(handle)
-  }, [state.activeSession])
+  }, [activeSession])
 
   useEffect(() => {
     const handle = setInterval(() => {
@@ -250,8 +269,8 @@ export default function FocusPage() {
   }, [])
 
   useEffect(() => {
-    if (state.activeSession?.taskId) {
-      setSelectedTaskId(state.activeSession.taskId)
+    if (activeSession?.taskId) {
+      setSelectedTaskId(activeSession.taskId)
       return
     }
 
@@ -260,7 +279,7 @@ export default function FocusPage() {
     }
 
     setSelectedTaskId(pendingTasks[0]?.id || '')
-  }, [state.activeSession, selectedTaskId, pendingTasks])
+  }, [activeSession, selectedTaskId, pendingTasks])
 
   const currentTask =
     activeTask || pendingTasks.find((task) => task.id === selectedTaskId) || pendingTasks[0] || null
@@ -272,7 +291,54 @@ export default function FocusPage() {
   }, [sessionMinutesInput])
 
   useEffect(() => {
-    const routeTaskId = location.state?.selectedTaskId
+    const routeState = location.state
+    if (!routeState) return
+
+    // Auto-start quick session from homepage
+    if (routeState.autoStart) {
+      if (!isAuthenticated) {
+        import('../../utils/guestFocus.js').then(module => {
+          const { task, session } = module.startGuestSession(
+            routeState.quickStartTaskTitle,
+            routeState.quickStartSubjectName,
+            Number(sessionMinutesInput)
+          )
+          setSelectedTaskId(task.id)
+          import('../../utils/guestStorage.js').then(storageModule => {
+            setGuestDataState(storageModule.getGuestData())
+          })
+        })
+      } else {
+        // Authenticated fast start
+        const startAuthQuickFocus = async () => {
+          const quickTaskId = crypto.randomUUID()
+          let firstSubjectId = state.subjects[0]?.id || ''
+          if (!firstSubjectId) {
+            firstSubjectId = crypto.randomUUID()
+            await addSubject({
+              id: firstSubjectId,
+              name: routeState.quickStartSubjectName || 'General Focus',
+            })
+          }
+          await addTask({
+            id: quickTaskId,
+            title: routeState.quickStartTaskTitle || 'Quick Focus Sprint',
+            subjectId: firstSubjectId,
+            type: 'Study',
+            dueDate: new Date().toISOString(),
+          })
+          setSelectedTaskId(quickTaskId)
+          startSession(quickTaskId, { source: 'quick-focus', plannedDurationSec: Number(sessionMinutesInput) * 60 })
+        }
+        startAuthQuickFocus()
+      }
+
+      // Clear route state
+      navigate('/focus', { replace: true })
+      return
+    }
+
+    const routeTaskId = routeState.selectedTaskId
     if (!routeTaskId) return
 
     const taskExists = pendingTasks.some((task) => task.id === routeTaskId)
@@ -280,8 +346,12 @@ export default function FocusPage() {
 
     setSelectedTaskId(routeTaskId)
 
-    if (state.activeSession) {
-      clearActiveSession()
+    if (activeSession) {
+      if (!isAuthenticated) {
+        import('../../utils/guestFocus.js').then(m => m.clearGuestSession())
+      } else {
+        clearActiveSession()
+      }
     }
 
     if (sessionMinutesInput !== '25') {
@@ -295,21 +365,26 @@ export default function FocusPage() {
     pendingTasks,
     stopSession,
     clearActiveSession,
-    state.activeSession,
+    activeSession,
     sessionMinutesInput,
+    isAuthenticated,
+    state.subjects,
+    addTask,
+    addSubject,
+    startSession
   ])
 
-  const targetDurationSec = state.activeSession?.plannedDurationSec || plannedMinutes * 60
+  const targetDurationSec = activeSession?.plannedDurationSec || plannedMinutes * 60
   const remainingSec = Math.max(0, targetDurationSec - elapsed)
 
   const completionPercent = Math.min(100, Math.round((elapsed / Math.max(1, targetDurationSec)) * 100))
-  const subjectName = state.subjects.find((subject) => subject.id === currentTask?.subjectId)?.name || 'Study'
-  const laps = state.activeSession?.laps || []
+  const subjectName = currentTask?.subjectName || state.subjects.find((subject) => subject.id === currentTask?.subjectId)?.name || 'Study'
+  const laps = activeSession?.laps || []
 
   const leftPanelProgress = {
     subject: currentTask ? 100 : 0,
-    setup: currentTask ? (state.activeSession ? 100 : 70) : 0,
-    execution: state.activeSession ? (state.activeSession.isPaused ? 65 : 40) : 0,
+    setup: currentTask ? (activeSession ? 100 : 70) : 0,
+    execution: activeSession ? (activeSession.isPaused ? 65 : 40) : 0,
   }
 
   function triggerTimerRipple() {
@@ -324,6 +399,22 @@ export default function FocusPage() {
   }
 
   async function startQuickFocus() {
+    if (!isAuthenticated) {
+      import('../../utils/guestFocus.js').then(module => {
+        const { task, session } = module.startGuestSession(
+          'Quick Focus Sprint',
+          'General Focus',
+          plannedMinutes
+        )
+        setSelectedTaskId(task.id)
+        import('../../utils/guestStorage.js').then(storageModule => {
+          setGuestDataState(storageModule.getGuestData())
+        })
+      })
+      if (focusSoundEnabled) playFocusCue('start')
+      return
+    }
+
     const quickTaskId = crypto.randomUUID()
     let firstSubjectId = state.subjects[0]?.id || ''
 
@@ -364,8 +455,19 @@ export default function FocusPage() {
       return
     }
 
-    if (state.activeSession) {
-      if (state.activeSession.isPaused) {
+    if (activeSession) {
+      if (!isAuthenticated) {
+        import('../../utils/guestFocus.js').then(m => {
+          if (activeSession.isPaused) m.resumeGuestSession()
+          else m.pauseGuestSession()
+
+          import('../../utils/guestStorage.js').then(sm => {
+            setGuestDataState(sm.getGuestData())
+          })
+        })
+        return
+      }
+      if (activeSession.isPaused) {
         resumeSession()
       } else {
         pauseSession()
@@ -383,7 +485,18 @@ export default function FocusPage() {
   async function handleEndBlock() {
     if (!currentTask) return
 
-    if (state.activeSession) {
+    if (activeSession) {
+      if (!isAuthenticated) {
+        import('../../utils/guestFocus.js').then(m => {
+          if (activeSession.isPaused) m.resumeGuestSession()
+          else m.pauseGuestSession()
+
+          import('../../utils/guestStorage.js').then(sm => {
+            setGuestDataState(sm.getGuestData())
+          })
+        })
+        return
+      }
       // Store session data for reflection
       setLastSessionData({
         taskId: currentTask.id,
@@ -413,7 +526,18 @@ export default function FocusPage() {
 
     // End session first to obtain persisted session id.
     let endedSessionId = null
-    if (state.activeSession) {
+    if (activeSession) {
+      if (!isAuthenticated) {
+        import('../../utils/guestFocus.js').then(m => {
+          if (activeSession.isPaused) m.resumeGuestSession()
+          else m.pauseGuestSession()
+
+          import('../../utils/guestStorage.js').then(sm => {
+            setGuestDataState(sm.getGuestData())
+          })
+        })
+        return
+      }
       endedSessionId = await stopSession()
     }
 
@@ -443,11 +567,11 @@ export default function FocusPage() {
   }
 
   function handleAddLap() {
-    if (!state.activeSession || state.activeSession.isPaused) return
+    if (!activeSession || activeSession.isPaused) return
     addLap()
   }
 
-  if (!currentTask && !state.activeSession) {
+  if (!currentTask && !activeSession) {
     return (
       <div className="focus-page-full-bleed relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(107,90,230,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(31,143,89,0.1),transparent_24%),linear-gradient(180deg,#f7f8fc_0%,#eef2f8_100%)] px-4 py-4 md:px-6 md:py-6">
         <div className="absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgba(17,22,29,0.05)_1px,transparent_1px)] [background-size:26px_26px]" />
@@ -581,7 +705,7 @@ export default function FocusPage() {
                     State
                   </p>
                   <p className="mt-1 text-sm font-semibold text-neutral-900">
-                    {state.activeSession ? (state.activeSession.isPaused ? 'Paused' : 'Running') : 'Ready to begin'}
+                    {activeSession ? (activeSession.isPaused ? 'Paused' : 'Running') : 'Ready to begin'}
                   </p>
                   <div className="mt-2 h-1.5 rounded-full bg-neutral-200">
                     <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${leftPanelProgress.execution}%` }} />
@@ -606,11 +730,11 @@ export default function FocusPage() {
               <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500 shadow-sm">
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    state.activeSession ? (state.activeSession.isPaused ? 'bg-amber-500' : 'bg-success') : 'bg-[#6b5ae6]'
+                    activeSession ? (activeSession.isPaused ? 'bg-amber-500' : 'bg-success') : 'bg-[#6b5ae6]'
                   }`}
                 />
-                {state.activeSession
-                  ? state.activeSession.isPaused
+                {activeSession
+                  ? activeSession.isPaused
                     ? 'Session paused'
                     : 'Session running'
                   : 'Session idle'}
@@ -641,7 +765,7 @@ export default function FocusPage() {
                     max={180}
                     value={sessionMinutesInput}
                     onChange={(event) => setSessionMinutesInput(event.target.value)}
-                    disabled={Boolean(state.activeSession)}
+                    disabled={Boolean(activeSession)}
                     className="w-14 rounded-md border border-neutral-200 bg-white px-2 py-1 text-center text-neutral-800 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                   />
                   <span className="text-neutral-500">min</span>
@@ -651,10 +775,10 @@ export default function FocusPage() {
               <button
                 type="button"
                 onClick={triggerTimerRipple}
-                className={`timer relative mx-auto mt-8 flex h-[350px] w-[350px] items-center justify-center rounded-full border border-white/70 bg-white/50 shadow-[0_24px_80px_rgba(17,22,29,0.12)] md:h-[410px] md:w-[410px] ${state.activeSession ? '' : 'animate-breathe'}`}
+                className={`timer relative mx-auto mt-8 flex h-[350px] w-[350px] items-center justify-center rounded-full border border-white/70 bg-white/50 shadow-[0_24px_80px_rgba(17,22,29,0.12)] md:h-[410px] md:w-[410px] ${activeSession ? '' : 'animate-breathe'}`}
               >
                 <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15),transparent_60%)]" />
-                <CircularProgress progress={completionPercent} active={state.activeSession} />
+                <CircularProgress progress={completionPercent} active={activeSession} />
                 {isRippling && <span className="pointer-events-none absolute inset-10 rounded-full border border-primary/40 animate-timer-ripple" />}
                 <div className="absolute inset-6 rounded-full border border-primary/10 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08),rgba(255,255,255,0.9)_60%)]" />
                 <div className="absolute inset-10 rounded-full border border-neutral-200/80" />
@@ -678,9 +802,9 @@ export default function FocusPage() {
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                 <Button className="min-w-[220px] px-6 py-3.5 text-base shadow-[0_16px_36px_rgba(99,82,200,0.35)]" onClick={toggleFocus}>
                   <span className="inline-flex items-center gap-2">
-                    {state.activeSession && !state.activeSession.isPaused ? <Pause size={16} /> : <Play size={16} />}
-                    {state.activeSession
-                      ? state.activeSession.isPaused
+                    {activeSession && !activeSession.isPaused ? <Pause size={16} /> : <Play size={16} />}
+                    {activeSession
+                      ? activeSession.isPaused
                         ? 'Resume Session'
                         : 'Pause Session'
                       : 'Start Session'}
@@ -697,7 +821,7 @@ export default function FocusPage() {
                 <Button
                   variant="ghost"
                   onClick={handleAddLap}
-                  disabled={!state.activeSession || state.activeSession.isPaused}
+                  disabled={!activeSession || activeSession.isPaused}
                   className="px-5 py-3 text-base"
                 >
                   <span className="inline-flex items-center gap-2">
@@ -800,7 +924,7 @@ export default function FocusPage() {
                   <button
                     key={task.id}
                     type="button"
-                    disabled={!!state.activeSession}
+                    disabled={!!activeSession}
                     onClick={() => setSelectedTaskId(task.id)}
                     className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
                       selectedTaskId === task.id
