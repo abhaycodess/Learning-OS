@@ -24,9 +24,15 @@ export function detectSubjectFromText(text) {
     }
   }
 
-  // 2. Try fuzzy match against all keywords
+  // 2. Try fuzzy match against all keywords using the longest word in the input
+  // (e.g., 'prtoessccsing' should match 'processing' in 'natural language processing')
+  const words = text.split(/\s+/).filter(Boolean)
+  let mainWord = words[0] || text
+  for (const word of words) {
+    if (word.length > mainWord.length) mainWord = word
+  }
   const allKeywords = Object.values(SUBJECT_KEYWORDS).flat()
-  const fuzzy = fuzzyMatch(text, allKeywords, 3)
+  const fuzzy = fuzzyMatch(mainWord, allKeywords, 3)
   if (fuzzy) {
     // Find which subject this keyword belongs to
     for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {

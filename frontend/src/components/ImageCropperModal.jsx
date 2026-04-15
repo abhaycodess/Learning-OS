@@ -91,16 +91,23 @@ export default function ImageCropperModal({
   if (!isOpen || !imageSrc) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-[2px] p-4">
-      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/70 bg-white/95 p-4 shadow-[0_30px_80px_rgba(17,22,29,0.20)] md:p-5">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] p-4"
+      onClick={e => { if (e.target === e.currentTarget) handleCancel() }}
+      aria-modal="true"
+      role="dialog"
+      tabIndex={-1}
+    >
+      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/70 bg-white/95 p-4 shadow-[0_30px_80px_rgba(17,22,29,0.20)] md:p-5 relative animate-fadeIn">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-base font-semibold text-neutral-900">{title}</h3>
           <button
             type="button"
             onClick={handleCancel}
-            className="grid h-8 w-8 place-items-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-100"
+            className="grid h-9 w-9 place-items-center rounded-full border border-neutral-200 text-neutral-500 bg-white/80 shadow hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#6352c8] absolute top-2 right-2"
+            aria-label="Close image cropper"
           >
-            <X size={14} />
+            <X size={20} />
           </button>
         </div>
 
