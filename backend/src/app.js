@@ -53,8 +53,9 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/health', (req, res) => {
-  res.json({ ok: true })
+// Health check route for Render and monitoring
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK' })
 })
 
 app.use('/api/auth', authLimiter, authRouter)
