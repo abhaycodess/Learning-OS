@@ -16,36 +16,21 @@ const { authLimiter, aiLimiter } = require('./shared/rateLimiters')
 
 
 const app = express()
+
 // Trust proxy for Render (critical for cookies, HTTPS, rate limiting)
 app.set('trust proxy', 1);
 
+// 🔥 STRICT CORS: Only allow localhost and production Vercel frontend
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://unlazy-rho.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 app.use(helmet())
-
-
-// Secure CORS for production, flexible for dev, and safe error handling
-// Update this list for your deployed frontend domain in production
-
-// Support multiple comma-separated URLs in FRONTEND_URL
-const frontendUrls = (process.env.FRONTEND_URL || '').split(',').map(url => url.trim()).filter(Boolean);
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  ...frontendUrls,
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn('Blocked by CORS:', origin);
-        callback(null, false); // safer, does not throw
-      }
-    },
-    credentials: true,
-  })
-);
 
 app.use(express.json({ limit: '1mb' }))
 
