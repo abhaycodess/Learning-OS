@@ -1,4 +1,10 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+if (!API_BASE) {
+  if (import.meta.env.MODE === 'production') {
+    throw new Error('VITE_API_BASE_URL must be set in production!');
+  }
+}
 
 export async function apiClient(path, options = {}) {
   const token = localStorage.getItem('authToken')
