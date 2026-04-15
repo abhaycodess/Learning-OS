@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://learning-os.onrender.com/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://learning-os.onrender.com/api'; // placeholder, will update via env
 
 if (!API_BASE) {
   if (import.meta.env.MODE === 'production') {
