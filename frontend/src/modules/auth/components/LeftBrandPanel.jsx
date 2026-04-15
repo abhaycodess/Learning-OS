@@ -71,7 +71,7 @@ export default function LeftBrandPanel() {
         {/* Logo & Brand */}
         <div className="flex items-center gap-3 mb-6 animate-up" style={{ animationDelay: '0.05s' }}>
           <BrandMark
-            size={48}
+            size={80}
             rounded="xl"
             className="border-white/30"
             surface="transparent"

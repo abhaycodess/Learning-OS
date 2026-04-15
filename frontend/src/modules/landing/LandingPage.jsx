@@ -81,7 +81,7 @@ export default function LandingPage() {
       </div>
 
       <div className="w-full max-w-2xl flex flex-col items-center text-center">
-        <BrandMark size={56} rounded="2xl" className="mb-8" surface="transparent" />
+        <BrandMark size={96} rounded="2xl" className="mb-8" surface="transparent" />
 
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-neutral-800 mb-8">
           What do you want to study?
