@@ -11,7 +11,7 @@ import { apiClient } from '../../services/apiClient'
 export async function chatWithCoach(message, context = {}) {
   const { conversationId = null, ...restContext } = context
 
-  return apiClient('/ai/chat', {
+  return apiClient('/api/ai/chat', {
     method: 'POST',
     body: JSON.stringify({
       message,
@@ -25,7 +25,7 @@ export async function chatWithCoach(message, context = {}) {
  * Get proactive AI insights for dashboard
  */
 export async function getAIInsights() {
-  return apiClient('/ai/insights', {
+  return apiClient('/api/ai/insights', {
     method: 'GET',
   })
 }
@@ -34,7 +34,7 @@ export async function getAIInsights() {
  * Delete an existing chat conversation from backend storage
  */
 export async function clearAIConversation(conversationId) {
-  return apiClient(`/ai/chat/${conversationId}`, {
+  return apiClient(`/api/ai/chat/${conversationId}`, {
     method: 'DELETE',
   })
 }
@@ -43,7 +43,7 @@ export async function clearAIConversation(conversationId) {
  * Summarize study notes
  */
 export async function summarizeNotes(notes, context = {}) {
-  return apiClient('/ai/summarize', {
+  return apiClient('/api/ai/summarize', {
     method: 'POST',
     body: JSON.stringify({
       notes,
@@ -56,7 +56,7 @@ export async function summarizeNotes(notes, context = {}) {
  * Get explanation for a doubt/question
  */
 export async function solveDoubt(question, mode = 'quick', context = {}) {
-  return apiClient('/ai/doubt', {
+  return apiClient('/api/ai/doubt', {
     method: 'POST',
     body: JSON.stringify({
       question,
@@ -70,7 +70,7 @@ export async function solveDoubt(question, mode = 'quick', context = {}) {
  * Get task breakdown into steps
  */
 export async function breakDownTask(task, context = {}) {
-  return apiClient('/ai/task-breakdown', {
+  return apiClient('/api/ai/task-breakdown', {
     method: 'POST',
     body: JSON.stringify({
       task,
@@ -83,7 +83,7 @@ export async function breakDownTask(task, context = {}) {
  * Generate a daily study plan
  */
 export async function generateDailyPlan(payload = {}) {
-  return apiClient('/ai/daily-plan', {
+  return apiClient('/api/ai/daily-plan', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -93,7 +93,7 @@ export async function generateDailyPlan(payload = {}) {
  * Generate a study quiz
  */
 export async function generateQuiz(payload = {}) {
-  return apiClient('/ai/quiz', {
+  return apiClient('/api/ai/quiz', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -103,7 +103,7 @@ export async function generateQuiz(payload = {}) {
  * Evaluate submitted quiz answers and get AI feedback
  */
 export async function evaluateQuiz(payload = {}) {
-  return apiClient('/ai/quiz/evaluate', {
+  return apiClient('/api/ai/quiz/evaluate', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -113,7 +113,7 @@ export async function evaluateQuiz(payload = {}) {
  * Generate a personalized study reminder
  */
 export async function generateStudyReminder(payload = {}) {
-  return apiClient('/ai/reminder', {
+  return apiClient('/api/ai/reminder', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
