@@ -24,11 +24,14 @@ app.use(helmet())
 
 // Secure CORS for production, flexible for dev, and safe error handling
 // Update this list for your deployed frontend domain in production
+
+// Support multiple comma-separated URLs in FRONTEND_URL
+const frontendUrls = (process.env.FRONTEND_URL || '').split(',').map(url => url.trim()).filter(Boolean);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL, // e.g., https://unlazy-rho.vercel.app
-].filter(Boolean);
+  ...frontendUrls,
+];
 
 app.use(
   cors({

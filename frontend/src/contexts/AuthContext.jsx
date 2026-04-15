@@ -135,7 +135,7 @@ export function AuthProvider({ children }) {
           markOnboardingComplete,
         }
 
-        const response = await apiClient('/auth/profile', {
+        const response = await apiClient('/api/auth/profile', {
           method: 'PUT',
           body: JSON.stringify(payload),
         })
@@ -174,7 +174,7 @@ export function AuthProvider({ children }) {
           return
         }
 
-        const data = await apiClient('/auth/user')
+        const data = await apiClient('/api/auth/user')
         applySessionUser(data.user)
       } catch {
         clearStoredSession()
@@ -205,7 +205,7 @@ export function AuthProvider({ children }) {
       setError(null)
 
       try {
-        const data = await apiClient('/auth/login', {
+        const data = await apiClient('/api/auth/login', {
           method: 'POST',
           body: JSON.stringify({ email, password }),
           credentials: 'include',
@@ -237,7 +237,7 @@ export function AuthProvider({ children }) {
         const resolvedName =
           name || `${firstName || ''} ${lastName || ''}`.trim()
 
-        const data = await apiClient('/auth/signup', {
+        const data = await apiClient('/api/auth/signup', {
           method: 'POST',
           body: JSON.stringify({
             firstName,
