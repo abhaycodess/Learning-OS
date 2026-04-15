@@ -4,7 +4,7 @@ import { cn } from '../utils/cn'
 
 const LOGO_SRC = '/brand/unlazy-mark.png'
 
-export function BrandMark({ size = 40, className = '', rounded = 'xl', surface = 'brand' }) {
+export function BrandMark({ size = 40, className = '', rounded = 'xl', surface = 'transparent' }) {
   const [hasError, setHasError] = useState(false)
 
   const roundedClass =

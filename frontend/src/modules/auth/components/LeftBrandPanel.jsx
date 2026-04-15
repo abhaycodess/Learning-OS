@@ -73,7 +73,8 @@ export default function LeftBrandPanel() {
           <BrandMark
             size={48}
             rounded="xl"
-            className="bg-white/10 border-white/30"
+            className="border-white/30"
+            surface="transparent"
           />
           <div>
             <div className="font-heading text-2xl text-white leading-tight">Unlazy</div>
