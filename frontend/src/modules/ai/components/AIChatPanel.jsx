@@ -118,12 +118,12 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
               </p>
 
               {quickPrompts.length > 0 && (
-                <div className="mt-4 flex flex-wrap justify-center gap-2 lg:hidden">
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mx-auto">
                   {quickPrompts.slice(0, 3).map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => onSendMessage(prompt)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-[var(--line)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                      className="text-sm px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:text-neutral-900 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 text-left leading-snug"
                     >
                       {prompt}
                     </button>
@@ -143,7 +143,7 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
             <img src={nexisAvatar} alt="Nexis avatar" className="w-8 h-8 rounded-lg object-cover" />
             <div>
               <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">Nexis</p>
-              <div className="flex gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface-alt)]">
+              <div className="flex gap-2 px-4 py-3 rounded-full shadow-sm bg-[var(--bg-surface-alt)]">
                 <div className="w-2 h-2 rounded-full animate-bounce bg-[var(--text-muted)]" />
                 <div
                   className="w-2 h-2 rounded-full animate-bounce bg-[var(--text-muted)]"
@@ -162,7 +162,7 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
       </div>
 
       {/* Input Area */}
-      <div className="pt-6 pb-7 px-4 bg-transparent">
+      <div className="sticky bottom-0 z-10 pt-4 pb-6 px-4 bg-transparent backdrop-blur-md">
         <div className="flex gap-3 items-end">
           <textarea
             value={input}
@@ -170,8 +170,8 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything... (Shift+Enter for new line)"
             className={cn(
-              'flex-1 resize-none px-4 py-3 rounded-lg border transition-all duration-200',
-              'border-[var(--line)] bg-[var(--bg-surface)] text-[var(--text-main)]',
+              'flex-1 resize-none px-5 py-3.5 rounded-full border border-neutral-200/60 bg-white/70 shadow-sm backdrop-blur-sm transition-all duration-200',
+              'text-neutral-800',
               'placeholder:text-[var(--text-muted)]',
               'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-0 focus:border-transparent',
               'max-h-24 font-sans text-sm'
@@ -185,7 +185,7 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
               onClick={toggleVoiceInput}
               disabled={isLoading}
               className={cn(
-                'px-3 py-3 rounded-lg border transition-all duration-200 self-end h-fit',
+                'px-3 py-3 rounded-full border transition-all duration-200 self-end h-fit',
                 isListening
                   ? 'border-red-300 bg-red-50 text-red-600'
                   : 'border-[var(--line)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)]',
@@ -198,7 +198,7 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
           <button
             type="button"
             onClick={speakLatestAIResponse}
-            className="px-3 py-3 rounded-lg border border-[var(--line)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all duration-200 self-end h-fit"
+            className="px-3 py-3 rounded-full border border-[var(--line)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all duration-200 self-end h-fit"
             title="Read last Nexis reply"
           >
             <Volume2 className="w-4 h-4" />
@@ -207,7 +207,7 @@ function AIChatPanel({ messages, isLoading, onSendMessage, messagesEndRef, quick
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
             className={cn(
-              'px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2',
+              'px-4 py-3 rounded-full shadow-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2',
               'self-end h-fit',
               isLoading || !input.trim()
                 ? 'bg-[var(--bg-surface-alt)] text-[var(--text-muted)] cursor-not-allowed'
@@ -254,20 +254,14 @@ function MessageBubble({ message }) {
         )}
         <div
           className={cn(
-            'px-4 py-3 rounded-lg leading-relaxed text-sm',
-            isUser ? 'bg-primary text-white' : 'bg-[var(--bg-surface-alt)] text-[var(--text-main)]'
+            'px-4 py-3 rounded-full shadow-sm leading-relaxed text-sm',
+            isUser ? 'bg-gradient-to-br from-[#6352c8] to-[#8b5cf6] text-white rounded-2xl rounded-tr-sm shadow-md' : 'bg-white border border-neutral-100 text-neutral-800 rounded-2xl rounded-tl-sm shadow-[0_4px_20px_rgba(17,22,29,0.03)]'
           )}
         >
           <FormattedContent content={message.content} isUser={isUser} />
         </div>
       </div>
-      {isUser && (
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-sm">
-            👤
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }

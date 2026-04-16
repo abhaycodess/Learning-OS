@@ -88,7 +88,7 @@ export function SessionReflectionModal({ isOpen, session, onSubmit, onDismiss })
   const sessionDurationMinutes = Math.max(0, Math.round(rawDurationSec / 60))
 
   const modal = (
-    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black bg-opacity-40">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
         {/* Header */}
         <div className="mb-6">

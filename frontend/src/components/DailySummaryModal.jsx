@@ -71,7 +71,7 @@ export const DailySummaryModal = ({ isOpen, dateKey = null, onClose }) => {
   const VerdictIcon = config.icon
 
   return (
-    <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md">
       <Card className="w-full max-w-2xl mx-4 relative">
         {/* Close button */}
         <button

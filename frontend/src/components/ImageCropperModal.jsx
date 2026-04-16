@@ -91,7 +91,7 @@ export default function ImageCropperModal({
   if (!isOpen || !imageSrc) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-[2px] p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
       <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/70 bg-white/95 p-4 shadow-[0_30px_80px_rgba(17,22,29,0.20)] md:p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-base font-semibold text-neutral-900">{title}</h3>

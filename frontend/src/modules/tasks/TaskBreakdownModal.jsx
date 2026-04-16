@@ -49,7 +49,7 @@ export function TaskBreakdownModal({ task, subject, onClose }) {
   }, [task, subject, mode, availableMinutes])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md">
       <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 p-6 max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200/30 dark:border-slate-800/30">
