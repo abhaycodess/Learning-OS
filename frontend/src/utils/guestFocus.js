@@ -2,7 +2,11 @@ import { getGuestData, saveGuestData, updateGuestProgress } from './guestStorage
 
 export function startGuestSession(title, subjectName, durationMin) {
   const data = getGuestData()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const taskId = crypto.randomUUID()
   const task = {
     id: taskId,
@@ -13,9 +17,15 @@ export function startGuestSession(title, subjectName, durationMin) {
     completed: false,
     dueDate: new Date().toISOString()
   }
+<<<<<<< HEAD
 
   data.tasks.unshift(task)
 
+=======
+
+  data.tasks.unshift(task)
+
+>>>>>>> origin/main
   const session = {
     taskId,
     startedAt: Date.now(),
@@ -25,51 +35,86 @@ export function startGuestSession(title, subjectName, durationMin) {
     accumulatedSec: 0,
     laps: []
   }
+<<<<<<< HEAD
 
   data.activeSession = session
   saveGuestData(data)
 
+=======
+
+  data.activeSession = session
+  saveGuestData(data)
+
+>>>>>>> origin/main
   return { task, session }
 }
 
 export function pauseGuestSession() {
   const data = getGuestData()
   if (!data.activeSession || data.activeSession.isPaused) return
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const increment = Math.max(0, Math.round((Date.now() - data.activeSession.startedAt) / 1000))
   data.activeSession.isPaused = true
   data.activeSession.pausedAt = Date.now()
   data.activeSession.accumulatedSec += increment
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   saveGuestData(data)
 }
 
 export function resumeGuestSession() {
   const data = getGuestData()
   if (!data.activeSession || !data.activeSession.isPaused) return
+<<<<<<< HEAD
 
   data.activeSession.isPaused = false
   data.activeSession.pausedAt = null
   data.activeSession.startedAt = Date.now()
 
+=======
+
+  data.activeSession.isPaused = false
+  data.activeSession.pausedAt = null
+  data.activeSession.startedAt = Date.now()
+
+>>>>>>> origin/main
   saveGuestData(data)
 }
 
 export function stopGuestSession() {
   const data = getGuestData()
   if (!data.activeSession) return null
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const now = Date.now()
   const runningSec = data.activeSession.isPaused
     ? 0
     : Math.max(0, Math.round((now - data.activeSession.startedAt) / 1000))
   const durationSec = (data.activeSession.accumulatedSec || 0) + runningSec
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const taskIndex = data.tasks.findIndex(t => t.id === data.activeSession.taskId)
   if (taskIndex !== -1) {
     data.tasks[taskIndex].completed = true
   }
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const completedSession = {
     id: crypto.randomUUID(),
     taskId: data.activeSession.taskId,
@@ -80,6 +125,7 @@ export function stopGuestSession() {
     startedAt: new Date(data.activeSession.startedAt).toISOString(),
     endedAt: new Date(now).toISOString()
   }
+<<<<<<< HEAD
 
   data.sessions.unshift(completedSession)
   data.activeSession = null
@@ -87,6 +133,15 @@ export function stopGuestSession() {
   saveGuestData(data)
   updateGuestProgress(durationSec)
 
+=======
+
+  data.sessions.unshift(completedSession)
+  data.activeSession = null
+
+  saveGuestData(data)
+  updateGuestProgress(durationSec)
+
+>>>>>>> origin/main
   return completedSession
 }
 

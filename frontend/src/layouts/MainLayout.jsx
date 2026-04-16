@@ -241,7 +241,7 @@ export default function MainLayout() {
                 title="Home"
                 className="flex items-center gap-3 px-1 text-left"
               >
-                <BrandMark size={40} rounded="2xl" className="animate-float-soft" />
+                <BrandMark size={72} rounded="2xl" className="animate-float-soft" surface="transparent" />
                 <div className="sidebar-logo-copy">
                   <BrandWordmark
                     titleClassName="text-xl text-neutral-900"

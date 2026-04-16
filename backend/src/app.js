@@ -16,32 +16,21 @@ const { authLimiter, aiLimiter } = require('./shared/rateLimiters')
 
 
 const app = express()
+
 // Trust proxy for Render (critical for cookies, HTTPS, rate limiting)
 app.set('trust proxy', 1);
 
+// 🔥 STRICT CORS: Only allow localhost and production Vercel frontend
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://unlazy-rho.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 app.use(helmet())
-
-
-// Secure CORS for production, flexible for dev, and safe error handling
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn('Blocked by CORS:', origin);
-        callback(null, false); // safer, does not throw
-      }
-    },
-    credentials: true,
-  })
-);
 
 app.use(express.json({ limit: '1mb' }))
 
@@ -52,8 +41,9 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/health', (req, res) => {
-  res.json({ ok: true })
+// Health check route for Render and monitoring
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK' })
 })
 
 app.use('/api/auth', authLimiter, authRouter)

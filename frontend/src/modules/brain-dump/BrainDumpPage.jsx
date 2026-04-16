@@ -18,14 +18,24 @@ export default function BrainDumpPage() {
     setIsProcessing(true)
 
     const lines = dumpText.split('\n').filter(line => line.trim().length > 0)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
     if (isAuthenticated) {
       for (const line of lines) {
         const title = line.trim()
         const detectedSubject = detectSubjectFromText(title)
+<<<<<<< HEAD
 
         let subjectId = state.subjects.find(s => s.name.toLowerCase() === detectedSubject.toLowerCase())?.id
 
+=======
+
+        let subjectId = state.subjects.find(s => s.name.toLowerCase() === detectedSubject.toLowerCase())?.id
+
+>>>>>>> origin/main
         if (!subjectId) {
           subjectId = crypto.randomUUID()
           await addSubject({
@@ -45,11 +55,19 @@ export default function BrainDumpPage() {
       navigate('/tasks')
     } else {
       const data = getGuestData()
+<<<<<<< HEAD
 
       lines.forEach(line => {
         const title = line.trim()
         const detectedSubject = detectSubjectFromText(title)
 
+=======
+
+      lines.forEach(line => {
+        const title = line.trim()
+        const detectedSubject = detectSubjectFromText(title)
+
+>>>>>>> origin/main
         data.tasks.unshift({
           id: crypto.randomUUID(),
           title: title,
@@ -60,6 +78,7 @@ export default function BrainDumpPage() {
           dueDate: new Date().toISOString()
         })
       })
+<<<<<<< HEAD
 
       saveGuestData(data)
       // Since guests don't have a /tasks page readily available without auth in our logic,
@@ -69,6 +88,17 @@ export default function BrainDumpPage() {
           quickStartTaskTitle: lines[0],
           quickStartSubjectName: detectSubjectFromText(lines[0]),
           autoStart: true
+=======
+
+      saveGuestData(data)
+      // Since guests don't have a /tasks page readily available without auth in our logic,
+      // we can redirect them to /focus to start the first dumped task, or back to /
+      navigate('/focus', {
+        state: {
+          quickStartTaskTitle: lines[0],
+          quickStartSubjectName: detectSubjectFromText(lines[0]),
+          autoStart: true
+>>>>>>> origin/main
         }
       })
     }
@@ -77,7 +107,11 @@ export default function BrainDumpPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col p-4 md:p-8">
       <header className="flex items-center gap-4 mb-8 max-w-4xl mx-auto w-full">
+<<<<<<< HEAD
         <button
+=======
+        <button
+>>>>>>> origin/main
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-neutral-200 rounded-full transition"
         >
@@ -85,19 +119,31 @@ export default function BrainDumpPage() {
         </button>
         <h1 className="text-2xl font-semibold text-neutral-800">Brain Dump</h1>
       </header>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
       <main className="flex-1 max-w-4xl mx-auto w-full flex flex-col">
         <p className="text-neutral-500 mb-6 text-sm">
           Type everything you need to study, line by line. We'll automatically turn them into actionable tasks and categorize them by subject.
         </p>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
         <textarea
           value={dumpText}
           onChange={(e) => setDumpText(e.target.value)}
           placeholder="e.g.&#10;Read Biology chapter 4&#10;Solve 20 math problems&#10;Review physics notes"
           className="flex-1 w-full bg-white border border-neutral-200 rounded-2xl p-6 text-lg text-neutral-800 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-300 transition-all placeholder:text-neutral-300"
         />
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
         <div className="mt-6 flex justify-end">
           <button
             onClick={handleOrganize}

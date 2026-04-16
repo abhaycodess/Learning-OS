@@ -88,13 +88,31 @@ export function SessionReflectionModal({ isOpen, session, onSubmit, onDismiss })
   const sessionDurationMinutes = Math.max(0, Math.round(rawDurationSec / 60))
 
   const modal = (
+<<<<<<< HEAD
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+=======
+    <div
+      className="fixed inset-0 z-[140] flex items-center justify-center bg-black bg-opacity-40"
+      onClick={e => { if (e.target === e.currentTarget) onDismiss() }}
+      aria-modal="true"
+      role="dialog"
+      tabIndex={-1}
+    >
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 relative animate-fadeIn">
+>>>>>>> origin/main
         {/* Header */}
+        <button
+          onClick={onDismiss}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/80 border border-gray-200 shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          aria-label="Close reflection"
+        >
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 hover:text-purple-600" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900">How was that?</h2>
           <p className="text-sm text-gray-600">
-            {session.taskTitle || 'Session'} • {sessionDurationMinutes} minutes
+            {session.taskTitle || 'Session'} 2 {sessionDurationMinutes} minutes
           </p>
         </div>
 

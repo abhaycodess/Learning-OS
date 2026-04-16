@@ -11,7 +11,8 @@ function readStoredMode() {
   const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
   if (stored === 'dark' || stored === 'light') return stored
 
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  // Always default to light mode, ignore system preference
+  return 'light'
 }
 
 function readStoredAccent() {

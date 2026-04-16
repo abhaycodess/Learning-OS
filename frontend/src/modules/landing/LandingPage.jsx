@@ -11,6 +11,7 @@ export default function LandingPage() {
   const [taskInput, setTaskInput] = useState('')
   const navigate = useNavigate()
   const { isAuthenticated, requiresOnboarding } = useAuth()
+<<<<<<< HEAD
 
   const [guestProgress, setGuestProgress] = useState({
     totalStudySeconds: 0,
@@ -42,6 +43,39 @@ export default function LandingPage() {
         quickStartSubjectName: subjectName,
         autoStart: true
       }
+=======
+
+  const [guestProgress, setGuestProgress] = useState({
+    totalStudySeconds: 0,
+    streakDays: 0,
+    mostStudied: 'None'
+  })
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const data = getGuestData()
+      setGuestProgress({
+        totalStudySeconds: data.progress.totalStudySeconds,
+        streakDays: data.progress.streakDays,
+        mostStudied: getGuestMostStudiedSubject()
+      })
+    }
+  }, [isAuthenticated])
+
+  const handleStartFocus = (e) => {
+    e?.preventDefault()
+    if (!taskInput.trim()) return
+
+    const subjectName = detectSubjectFromText(taskInput)
+
+    // Navigate to focus page with the state indicating we want to start a quick session
+    navigate('/focus', {
+      state: {
+        quickStartTaskTitle: taskInput,
+        quickStartSubjectName: subjectName,
+        autoStart: true
+      }
+>>>>>>> origin/main
     })
   }
 
@@ -81,12 +115,21 @@ export default function LandingPage() {
       </div>
 
       <div className="w-full max-w-2xl flex flex-col items-center text-center">
+<<<<<<< HEAD
         <BrandMark size={56} rounded="2xl" className="mb-8" />
 
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-neutral-800 mb-8">
           What do you want to study?
         </h1>
 
+=======
+        <BrandMark size={96} rounded="2xl" className="mb-8" surface="transparent" />
+
+        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-neutral-800 mb-8">
+          What do you want to study?
+        </h1>
+
+>>>>>>> origin/main
         <form onSubmit={handleStartFocus} className="w-full relative max-w-xl group">
           <input
             type="text"
@@ -107,7 +150,11 @@ export default function LandingPage() {
         </form>
 
         <div className="mt-8 flex gap-4">
+<<<<<<< HEAD
           <button
+=======
+          <button
+>>>>>>> origin/main
             onClick={handleBrainDump}
             className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800 bg-white border border-neutral-200 px-4 py-2 rounded-full shadow-sm transition"
           >
@@ -128,7 +175,11 @@ export default function LandingPage() {
                 {formatClock(guestProgress.totalStudySeconds).replace(/^00:/, '')}
               </span>
             </div>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1.5 text-neutral-400 mb-1">
                 <span className="text-[11px] font-semibold uppercase tracking-wider">Streak</span>
@@ -137,7 +188,11 @@ export default function LandingPage() {
                 {guestProgress.streakDays} <span className="text-orange-500 text-sm">🔥</span>
               </span>
             </div>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1.5 text-neutral-400 mb-1">
                 <BarChart3 size={14} />

@@ -135,7 +135,7 @@ export function AuthProvider({ children }) {
           markOnboardingComplete,
         }
 
-        const response = await apiClient('/auth/profile', {
+        const response = await apiClient('/api/auth/profile', {
           method: 'PUT',
           body: JSON.stringify(payload),
         })
@@ -174,7 +174,7 @@ export function AuthProvider({ children }) {
           return
         }
 
-        const data = await apiClient('/auth/user')
+        const data = await apiClient('/api/auth/user')
         applySessionUser(data.user)
       } catch {
         clearStoredSession()
@@ -205,27 +205,17 @@ export function AuthProvider({ children }) {
       setError(null)
 
       try {
-        const response = await fetch(`${API_BASE}/auth/login`, {
+        const data = await apiClient('/api/auth/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          credentials: 'include',
         })
-
-        if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || 'Login failed')
-        }
-
-        const data = await response.json()
         const { token, user: nextUser } = data
-
         localStorage.setItem('authToken', token)
         applySessionUser(nextUser)
-
         const statusMap = readMap(ONBOARDING_STATUS_KEY)
         statusMap[nextUser.id] = nextUser.onboardingCompleted !== false
         writeMap(ONBOARDING_STATUS_KEY, statusMap)
-
         return data
       } catch (err) {
         setError(err.message)
@@ -247,9 +237,8 @@ export function AuthProvider({ children }) {
         const resolvedName =
           name || `${firstName || ''} ${lastName || ''}`.trim()
 
-        const response = await fetch(`${API_BASE}/auth/signup`, {
+        const data = await apiClient('/api/auth/signup', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             firstName,
             lastName,
@@ -257,26 +246,16 @@ export function AuthProvider({ children }) {
             password,
             name: resolvedName,
           }),
+          credentials: 'include',
         })
-
-        if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || 'Signup failed')
-        }
-
-        const data = await response.json()
-
         const { token, user: nextUser } = data
-
         if (token && nextUser) {
           localStorage.setItem('authToken', token)
           applySessionUser(nextUser)
-
           const statusMap = readMap(ONBOARDING_STATUS_KEY)
           statusMap[nextUser.id] = false
           writeMap(ONBOARDING_STATUS_KEY, statusMap)
         }
-
         return data
       } catch (err) {
         setError(err.message)

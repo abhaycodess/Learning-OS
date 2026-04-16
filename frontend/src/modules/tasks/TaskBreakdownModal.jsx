@@ -49,8 +49,21 @@ export function TaskBreakdownModal({ task, subject, onClose }) {
   }, [task, subject, mode, availableMinutes])
 
   return (
+<<<<<<< HEAD
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-md">
       <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 p-6 max-h-[80vh] overflow-y-auto">
+=======
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+      aria-modal="true"
+      role="dialog"
+      tabIndex={-1}
+    >
+      <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 p-6 max-h-[80vh] overflow-y-auto shadow-2xl relative animate-fadeIn">
+>>>>>>> origin/main
         {/* Header */}
         <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200/30 dark:border-slate-800/30">
           <div className="flex items-start gap-3 flex-1">
@@ -68,10 +81,11 @@ export function TaskBreakdownModal({ task, subject, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            aria-label="Close"
+            className="p-2 rounded-full bg-white/80 dark:bg-slate-800/80 shadow hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400"
+            aria-label="Close modal"
+            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)' }}
           >
-            <X className="w-5 h-5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" />
+            <X className="w-6 h-6 text-slate-500 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400" />
           </button>
         </div>
 

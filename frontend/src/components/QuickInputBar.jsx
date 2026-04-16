@@ -26,6 +26,7 @@ export default function QuickInputBar() {
     if (!taskInput.trim()) return
 
     const subjectName = detectSubjectFromText(taskInput)
+<<<<<<< HEAD
 
     // Auto-start focus session directly
     navigate('/focus', {
@@ -36,6 +37,18 @@ export default function QuickInputBar() {
       }
     })
 
+=======
+
+    // Auto-start focus session directly
+    navigate('/focus', {
+      state: {
+        quickStartTaskTitle: taskInput,
+        quickStartSubjectName: subjectName,
+        autoStart: true
+      }
+    })
+
+>>>>>>> origin/main
     setTaskInput('')
     setIsOpen(false)
   }
@@ -44,7 +57,11 @@ export default function QuickInputBar() {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300">
       {isOpen ? (
+<<<<<<< HEAD
         <form
+=======
+        <form
+>>>>>>> origin/main
           onSubmit={handleSubmit}
           className="flex items-center bg-white/70 backdrop-blur-md border border-neutral-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-2 py-2 w-[320px] md:w-[480px] animate-in slide-in-from-bottom-4 fade-in"
         >
@@ -57,14 +74,22 @@ export default function QuickInputBar() {
             className="flex-1 bg-transparent border-none outline-none px-4 text-sm font-medium text-neutral-800 placeholder:text-neutral-500"
             autoFocus
           />
+<<<<<<< HEAD
           <button
+=======
+          <button
+>>>>>>> origin/main
             type="submit"
             disabled={!taskInput.trim()}
             className="bg-neutral-900 text-white rounded-full h-8 px-4 text-xs font-semibold hover:bg-neutral-800 disabled:opacity-50 transition"
           >
             Start
           </button>
+<<<<<<< HEAD
           <button
+=======
+          <button
+>>>>>>> origin/main
             type="button"
             onClick={() => setIsOpen(false)}
             className="ml-2 text-neutral-400 hover:text-neutral-600 p-1"

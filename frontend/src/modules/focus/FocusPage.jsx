@@ -179,7 +179,11 @@ export default function FocusPage() {
   }, [userId])
 
   const [guestDataState, setGuestDataState] = useState(null)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   useEffect(() => {
     if (!isAuthenticated) {
       import('../../utils/guestStorage.js').then((module) => {
@@ -187,14 +191,22 @@ export default function FocusPage() {
       })
     }
   }, [isAuthenticated])
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const pendingTasks = useMemo(() => {
     if (!isAuthenticated && guestDataState) {
       return guestDataState.tasks.filter(t => !t.completed)
     }
     return state.tasks.filter((task) => !task.completed)
   }, [state.tasks, isAuthenticated, guestDataState])
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
   const activeSession = useMemo(() => {
     if (!isAuthenticated && guestDataState) {
       return guestDataState.activeSession
@@ -293,14 +305,23 @@ export default function FocusPage() {
   useEffect(() => {
     const routeState = location.state
     if (!routeState) return
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
     // Auto-start quick session from homepage
     if (routeState.autoStart) {
       if (!isAuthenticated) {
         import('../../utils/guestFocus.js').then(module => {
           const { task, session } = module.startGuestSession(
+<<<<<<< HEAD
             routeState.quickStartTaskTitle,
             routeState.quickStartSubjectName,
+=======
+            routeState.quickStartTaskTitle,
+            routeState.quickStartSubjectName,
+>>>>>>> origin/main
             Number(sessionMinutesInput)
           )
           setSelectedTaskId(task.id)
@@ -332,7 +353,11 @@ export default function FocusPage() {
         }
         startAuthQuickFocus()
       }
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
       // Clear route state
       navigate('/focus', { replace: true })
       return
@@ -402,8 +427,13 @@ export default function FocusPage() {
     if (!isAuthenticated) {
       import('../../utils/guestFocus.js').then(module => {
         const { task, session } = module.startGuestSession(
+<<<<<<< HEAD
           'Quick Focus Sprint',
           'General Focus',
+=======
+          'Quick Focus Sprint',
+          'General Focus',
+>>>>>>> origin/main
           plannedMinutes
         )
         setSelectedTaskId(task.id)
@@ -460,7 +490,11 @@ export default function FocusPage() {
         import('../../utils/guestFocus.js').then(m => {
           if (activeSession.isPaused) m.resumeGuestSession()
           else m.pauseGuestSession()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
           import('../../utils/guestStorage.js').then(sm => {
             setGuestDataState(sm.getGuestData())
           })
@@ -490,7 +524,11 @@ export default function FocusPage() {
         import('../../utils/guestFocus.js').then(m => {
           if (activeSession.isPaused) m.resumeGuestSession()
           else m.pauseGuestSession()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
           import('../../utils/guestStorage.js').then(sm => {
             setGuestDataState(sm.getGuestData())
           })
@@ -531,7 +569,11 @@ export default function FocusPage() {
         import('../../utils/guestFocus.js').then(m => {
           if (activeSession.isPaused) m.resumeGuestSession()
           else m.pauseGuestSession()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> origin/main
           import('../../utils/guestStorage.js').then(sm => {
             setGuestDataState(sm.getGuestData())
           })
